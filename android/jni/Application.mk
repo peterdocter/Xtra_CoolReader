@@ -1,6 +1,6 @@
 # The ARMv7 is significanly faster due to the use of the hardware FPU
-APP_OPTIM := debug
-#APP_OPTIM := release
+#APP_OPTIM := debug
+APP_OPTIM := release
 #APP_ABI := armeabi 
 APP_ABI := armeabi-v7a
 #APP_ABI := mips 

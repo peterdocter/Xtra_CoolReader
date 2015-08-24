@@ -1,1 +1,1 @@
-~/src/android-ndk/ndk-build V=1
+$ANDROID_NDK_ROOT/ndk-build V=1
