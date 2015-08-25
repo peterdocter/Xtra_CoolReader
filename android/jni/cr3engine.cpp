@@ -208,6 +208,7 @@ static bool GetBookProperties(const char *name,  BookProperties * pBookProps)
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_scanBookPropertiesInternal
   (JNIEnv * _env, jclass _engine, jobject _fileInfo)
 {
+        CRJNIEnv env(_env);
 	jclass objclass = env->GetObjectClass(_fileInfo);
 	jfieldID fid = env->GetFieldID(objclass, "pathname", "Ljava/lang/String;");
 	lString16 filename = env.fromJavaString( (jstring)env->GetObjectField(_fileInfo, fid) );
@@ -244,7 +245,8 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_scanBookPropertie
 
 void drawBookCoverInternal(JNIEnv * _env, jclass _engine, jobject bitmap, jbyteArray _data, jstring _fontFace, jstring _title, jstring _authors, jstring _seriesName, jint seriesNumber, jint bpp)
 {
-	lString8 fontFace = UnicodeToUtf8(env.fromJavaString(_fontFace));
+	CRJNIEnv env(_env);
+        lString8 fontFace = UnicodeToUtf8(env.fromJavaString(_fontFace));
 	lString16 title = env.fromJavaString(_title);
 	lString16 authors = env.fromJavaString(_authors);
 	lString16 seriesName = env.fromJavaString(_seriesName);
@@ -312,6 +314,7 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_Engine_drawBookCoverInternal
 jbyteArray scanBookCoverInternal
   (JNIEnv * _env, jclass _class, jstring _path)
 {
+    CRJNIEnv env(_env);
     lString16 path = env.fromJavaString(_path);
     lString16 arcname, item;
     LVStreamRef res;
@@ -383,6 +386,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_coolreader_crengine_Engine_scanBookCoverIn
 JNIEXPORT jobjectArray JNICALL Java_org_coolreader_crengine_Engine_getArchiveItemsInternal
   (JNIEnv * _env, jclass, jstring jarcName)
 {
+    CRJNIEnv env(_env);
     lString16 arcName = env.fromJavaString(jarcName);
     lString16Collection list;
     
@@ -412,7 +416,8 @@ JNIEXPORT jobjectArray JNICALL Java_org_coolreader_crengine_Engine_getArchiveIte
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_setHyphenationMethod
   (JNIEnv * _env, jclass _engine, jint method, jbyteArray data)
 {
-	if ( method==0 ) {
+	CRJNIEnv env(_env);
+        if ( method==0 ) {
 		return HyphMan::activateDictionary(lString16(HYPH_DICT_ID_NONE));
 	} else if ( method==1 ) {
 		return HyphMan::activateDictionary(lString16(HYPH_DICT_ID_ALGORITHM));
@@ -459,8 +464,6 @@ protected:
 	}
 };
 
-//typedef void (lv_FatalErrorHandler_t)(int errorCode, const char * errorText );
-
 void cr3androidFatalErrorHandler(int errorCode, const char * errorText )
 {
 	LOGE("CoolReader Fatal Error #%d: %s", errorCode, errorText);
@@ -487,6 +490,7 @@ jboolean initInternal(JNIEnv * penv, jclass obj, jobjectArray fontArray) {
 	int len = fonts.length();
 	for ( int i=0; i<len; i++ ) {
 		lString8 fontName = UnicodeToUtf8(fonts[i]);
+		fontMan->RegisterFont( fontName );                
 	}
 	return fontMan->GetFontCount() ? JNI_TRUE : JNI_FALSE;
 }
