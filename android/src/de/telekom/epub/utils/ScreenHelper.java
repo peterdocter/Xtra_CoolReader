@@ -1,8 +1,6 @@
 package de.telekom.epub.utils;
 
-//import android.graphics.Rect;
 import android.util.Log;
-//import android.view.View;
 
 public class ScreenHelper {
     private static final String LOG_TAG = ScreenHelper.class.getSimpleName();

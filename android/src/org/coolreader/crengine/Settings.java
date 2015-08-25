@@ -48,8 +48,6 @@ public interface Settings {
     public static final String PROP_EMBEDDED_STYLES         ="crengine.doc.embedded.styles.enabled";
     public static final String PROP_EMBEDDED_FONTS          ="crengine.doc.embedded.fonts.enabled";
     public static final String PROP_DISPLAY_INVERSE         ="crengine.display.inverse";
-//    public static final String PROP_DISPLAY_FULL_UPDATE_INTERVAL ="crengine.display.full.update.interval";
-//    public static final String PROP_DISPLAY_TURBO_UPDATE_MODE ="crengine.display.turbo.update";
 
     public static final String PROP_STATUS_LOCATION         ="viewer.status.location";
     public static final String PROP_TOOLBAR_LOCATION        ="viewer.toolbar.location2";
@@ -240,7 +238,6 @@ public interface Settings {
         			if (lang.code.equals(code))
         				return lang;
     		}
-    		Log.w("cr3", "language not found by code " + code);
     		return DEFAULT;
     	}
     	
@@ -295,6 +292,5 @@ public interface Settings {
 
 	    "app.ui.theme*",
 	};
-
 
 }

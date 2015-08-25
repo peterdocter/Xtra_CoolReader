@@ -4,7 +4,6 @@ import org.coolreader.R;
 
 public enum DocumentFormat {
 	/// lvtinydom.h: source document formats
-	//typedef enum {
 	NONE("fb2.css", R.raw.fb2, R.drawable.cr3_browser_book, false, false, 0, 
 			new String[] {},
 			new String[] {}),// doc_format_none,
@@ -35,8 +34,7 @@ public enum DocumentFormat {
 	PDB("htm.css", R.raw.htm, R.drawable.cr3_browser_book_pdb, false, true, 4, 
 			new String[] {".pdb", ".prc", ".mobi", ".azw"},
 			new String[] {}); // doc_format_txt/html/...,
-    // don't forget update getDocFormatName() when changing this enum
-	//} doc_format_t;
+        // don't forget update getDocFormatName() when changing this enum
 	
 	public String getCssName()
 	{

@@ -98,7 +98,6 @@ public class BookInfo {
 			lastPosition = bm;
 		} else {
 			if (findBookmarkIndex(bm) >= 0) {
-				L.w("duplicate bookmark added " + bm.getUniqueKey());
 			} else {
 				bookmarks.add(bm);
 			}
@@ -171,7 +170,6 @@ public class BookInfo {
 			return null;
 		int index = findBookmarkIndex(bm);
 		if ( index<0 ) {
-			Log.e("cr3", "cannot find bookmark " + bm);
 			return null;
 		}
 		Bookmark item = bookmarks.get(index);
@@ -186,7 +184,6 @@ public class BookInfo {
 			return null;
 		int index = findBookmarkIndex(bm);
 		if ( index<0 ) {
-			Log.e("cr3", "cannot find bookmark " + bm);
 			return null;
 		}
 		return bookmarks.remove(index);
@@ -234,7 +231,6 @@ public class BookInfo {
 	}
 
 	synchronized public boolean exportBookmarks( String fileName ) {
-		Log.i("cr3", "Exporting bookmarks to file " + fileName);
 		try { 
 			FileOutputStream stream = new FileOutputStream(new File(fileName));
 			OutputStreamWriter writer = new OutputStreamWriter(stream, "UTF-8"); 
@@ -293,7 +289,5 @@ public class BookInfo {
 		return "BookInfo [fileInfo=" + fileInfo + ", lastPosition="
 				+ lastPosition + "]";
 	}
-
-	
 	
 }

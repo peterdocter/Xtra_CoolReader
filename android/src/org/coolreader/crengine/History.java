@@ -82,7 +82,6 @@ public class History extends FileInfoChangeSource {
 	
 	public void updateBookAccess(BookInfo bookInfo, long timeElapsed)
 	{
-		Log.v("cr3", "History.updateBookAccess() for " + bookInfo.getFileInfo().getPathName());
 		bookInfo.updateAccess();
 		bookInfo.updateTimeElapsed(timeElapsed);
 		int index = findBookInfo(bookInfo.getFileInfo());
@@ -124,14 +123,11 @@ public class History extends FileInfoChangeSource {
 	}
 	protected void updateRecentDir()
 	{
-		Log.v("cr3", "History.updateRecentDir()");
 		if ( mRecentBooksFolder!=null ) { 
 			mRecentBooksFolder.clear();
 			for ( BookInfo book : mBooks )
 				mRecentBooksFolder.addFile(book.getFileInfo());
 			onChange(mRecentBooksFolder, false);
-		} else {
-			Log.v("cr3", "History.updateRecentDir() : mRecentBooksFolder is null");
 		}
 	}
 	Scanner mScanner;
@@ -154,7 +150,6 @@ public class History extends FileInfoChangeSource {
 	
 	public boolean loadFromDB(final CRDBService.LocalBinder db, int maxItems )
 	{
-		Log.v("cr3", "History.loadFromDB()");
 		mRecentBooksFolder = mScanner.getRecentDir();
 		db.loadRecentBooks(100, new CRDBService.RecentBooksLoadingCallback() {
 			@Override
@@ -165,8 +160,6 @@ public class History extends FileInfoChangeSource {
 				}
 			}
 		});
-		if ( mRecentBooksFolder==null )
-			Log.v("cr3", "History.loadFromDB() : mRecentBooksFolder is null");
 		return true;
 	}
 

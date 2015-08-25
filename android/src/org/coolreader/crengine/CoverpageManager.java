@@ -121,7 +121,6 @@ public class CoverpageManager {
 	}
 	
 	public void clear() {
-		log.d("CoverpageManager.clear()");
 		synchronized(LOCK) {
 			mCache.clear();
 			mCheckFileCacheQueue.clear();
@@ -385,10 +384,6 @@ public class CoverpageManager {
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
-//				if (lastReadyNotifyTask != this && Utils.timeInterval(firstReadyTimestamp) < COVERPAGE_MAX_UPDATE_DELAY) {
-//					log.v("skipping update, " + Utils.timeInterval(firstReadyTimestamp));
-//					return;
-//				}
 				ArrayList<ImageItem> list = new ArrayList<ImageItem>();
 				synchronized(LOCK) {
 					for (;;) {
@@ -398,8 +393,6 @@ public class CoverpageManager {
 						list.add(f);
 					}
 					mReadyQueue.clear();
-					if (list.size() > 0)
-						log.v("ready coverpages: " + list.size());
 				}
 				if (list.size() > 0) {
 					for (CoverpageReadyListener listener : listeners)
@@ -425,7 +418,6 @@ public class CoverpageManager {
 		Bitmap bmp = drawCoverpage(data, file);
 		if (bmp != null) {
 			// successfully decoded
-			log.v("coverpage is decoded for " + file);
 			item.setBitmap(bmp);
 			item.state = State.READY;
 			notifyBitmapIsReady(file);
@@ -433,7 +425,6 @@ public class CoverpageManager {
 	}
 
 	private void coverpageLoaded(final ImageItem file, final byte[] data) {
-		log.v("coverpage data is loaded for " + file);
 		setItemState(file, State.IMAGE_DRAW_SCHEDULED);
 		BackgroundThread.instance().postBackground(new Runnable() {
 			@Override
@@ -459,7 +450,6 @@ public class CoverpageManager {
 						@Override
 						public void onCoverpageLoaded(FileInfo fileInfo, byte[] data) {
 							if (data == null) {
-								log.v("cover not found in DB for " + fileInfo + ", scheduling scan");
 								mScanFileQueue.addOnTop(request);
 								scheduleScanFile(db);
 							} else {
@@ -515,12 +505,10 @@ public class CoverpageManager {
 				return;
 			if (file.file.format.needCoverPageCaching()) {
 				if (mCheckFileCacheQueue.addOnTop(file)) {
-					log.v("Scheduled coverpage DB lookup for " + file);
 					scheduleCheckCache(db);
 				}
 			} else {
 				if (mScanFileQueue.addOnTop(file)) {
-					log.v("Scheduled coverpage filescan for " + file);
 					scheduleScanFile(db);
 				}
 			}
@@ -624,7 +612,6 @@ public class CoverpageManager {
 				synchronized (mCache) {
 					Bitmap bitmap = mCache.getBitmap(book);
 					if (bitmap != null) {
-						log.d("Image for " + book + " is found in cache, drawing...");
 						Rect dst = getBestCoverSize(rc, bitmap.getWidth(), bitmap.getHeight());
 						canvas.drawBitmap(bitmap, null, dst, defPaint);
 						if (shadowSizePercent > 0) {
@@ -634,10 +621,7 @@ public class CoverpageManager {
 						return;
 					}
 				}
-				log.d("Image for " + book + " is not found in cache, scheduling generation...");
 				queueForDrawing(db, book);
-				//if (h * bestWidth / bestHeight > w)
-				//canvas.drawRect(rc, defPaint);
 			} catch (Exception e) {
 				log.e("exception in draw", e);
 			}
@@ -741,7 +725,6 @@ public class CoverpageManager {
 				CoverpageManager.ImageItem item = (CoverpageManager.ImageItem)view.getTag();
 				for (CoverpageManager.ImageItem v : files)
 					if (v.matches(item)) {
-						log.v("invalidating view for " + item);
 						view.invalidate();
 					}
 			}

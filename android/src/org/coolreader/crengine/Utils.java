@@ -82,9 +82,7 @@ public class Utils {
 	
 	private static boolean moveFile(File oldPlace, File newPlace, boolean removeOld) {
 		boolean removeNewFile = true;
-		Log.i("cr3", "Moving file " + oldPlace.getAbsolutePath() + " to " + newPlace.getAbsolutePath());
 		if ( !oldPlace.exists() ) {
-			Log.i("cr3", "File " + oldPlace.getAbsolutePath() + " does not exist!");
 			return false;
 		}
 		FileOutputStream os = null;
@@ -133,7 +131,6 @@ public class Utils {
 		if (!f.exists())
 			return;
 		File backup = getBackupFileName(f, true);
-		L.i("Creating backup of file " + f + " as " + backup);
 		if (Utils.copyFile(f, backup)) {
 			L.w("copying of DB has been failed");
 		}
@@ -256,11 +253,6 @@ public class Utils {
 			if ( buf.length()>0 )
 				buf.append(", ");
 			buf.append(Utils.authorNameFileAs(a));
-//			String[] items = a.split(" ");
-//			if ( items.length==3 && items[1]!=null && items[1].length()>=1 )
-//				buf.append(items[0] + " " + items[1].charAt(0) + ". " + items[2]);
-//			else
-//				buf.append(a);
 		}
 		return buf.toString();
 	}
@@ -274,11 +266,6 @@ public class Utils {
 			if (buf.length() > 0)
 				buf.append(", ");
 			buf.append(a);
-//			String[] items = a.split(" ");
-//			if ( items.length==3 && items[1]!=null && items[1].length()>=1 )
-//				buf.append(items[0] + " " + items[1].charAt(0) + ". " + items[2]);
-//			else
-//				buf.append(a);
 		}
 		return buf.toString();
 	}
@@ -316,28 +303,6 @@ public class Utils {
 		GradientDrawable d = new GradientDrawable();
 		d.setColor(color);
 		return d;
-//		RectShape s = new RectShape();
-//		
-//		d.setShape(s);
-//		return new Drawable() {
-//			@Override
-//			public void setColorFilter(ColorFilter cf) {
-//			}
-//			
-//			@Override
-//			public void setAlpha(int alpha) {
-//			}
-//			
-//			@Override
-//			public int getOpacity() {
-//				return 0;
-//			}
-//			
-//			@Override
-//			public void draw(Canvas canvas) {
-//				canvas.drawColor(0xFF000000 | color);
-//			}
-//		};
 	}
 
 	public static String formatSeries( String name, int number )
@@ -386,26 +351,10 @@ public class Utils {
 		}
 	}
 	
-//	static private ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>(); 
-//	static private ThreadLocal<SimpleDateFormat> timeFormatThreadLocal = new ThreadLocal<SimpleDateFormat>();
-//	static private SimpleDateFormat dateFormat() {
-//		if (dateFormatThreadLocal.get() == null)
-//			dateFormatThreadLocal.set(new SimpleDateFormat("dd.MM.yy", Locale.getDefault()));
-//		return dateFormatThreadLocal.get();
-//	}
-//	
-//	static private SimpleDateFormat timeFormat() {
-//		if (timeFormatThreadLocal.get() == null)
-//			timeFormatThreadLocal.set(new SimpleDateFormat("HH:mm", Locale.getDefault()));
-//		return timeFormatThreadLocal.get();
-//	}
-	
 	public static String formatTimeElapsed( long timeElapsed )
 	{
 		int hours = (int) timeElapsed/(60*60*1000);
 		int min = (int) timeElapsed % (60*60*1000) / (60*1000);
-//		int sec = (int) timeElapsed % (60*60*1000) % (60 * 1000) / 1000;
-//		return String.format("%02d:%02d:%02d", hours, min, sec);
 		return String.format("%d:%02d", hours, min);
 	}
 	public static String formatSize( int size )

@@ -11,7 +11,6 @@ import java.util.*;
 
 public class MainDB extends BaseDB {
 	public static final Logger log = L.create("mdb");
-	public static final Logger vlog = L.create("mdb", Log.VERBOSE);
 	
 	private boolean pathCorrectionRequired = false;
 	public final int DB_VERSION = 23;
@@ -139,18 +138,7 @@ public class MainDB extends BaseDB {
 				mDB.setVersion(DB_VERSION);
 		}
 		
-		dumpStatistics();
-		
 		return true;
-	}
-
-	private void dumpStatistics() {
-		log.i("mainDB: " + longQuery("SELECT count(*) FROM author") + " authors, "
-				 + longQuery("SELECT count(*) FROM series") + " series, "
-				 + longQuery("SELECT count(*) FROM book") + " books, "
-				 + longQuery("SELECT count(*) FROM bookmark") + " bookmarks"
-				 + longQuery("SELECT count(*) FROM folder") + " folders"
-		);
 	}
 
 	@Override
@@ -194,13 +182,12 @@ public class MainDB extends BaseDB {
 	}
 	
 	//=======================================================================================
-    // OPDS access code
-    //=======================================================================================
+        // OPDS access code
+        //=======================================================================================
 	private final static String[] DEF_OPDS_URLS1 = {
 		"http://www.feedbooks.com/catalog.atom", "Feedbooks",
 		"http://bookserver.archive.org/catalog/", "Internet Archive",
 		"http://m.gutenberg.org/", "Project Gutenberg", 
-//		"http://ebooksearch.webfactional.com/catalog.atom", "eBookSearch", 
 		"http://bookserver.revues.org/", "Revues.org", 
 		"http://www.legimi.com/opds/root.atom", "Legimi",
 		"http://www.ebooksgratuits.com/opds/", "Ebooks libres et gratuits",
@@ -282,7 +269,6 @@ public class MainDB extends BaseDB {
 	}
 
 	public boolean loadOPDSCatalogs(ArrayList<FileInfo> list) {
-		log.i("loadOPDSCatalogs()");
 		boolean found = false;
 		Cursor rs = null;
 		try {
@@ -321,12 +307,10 @@ public class MainDB extends BaseDB {
 	}
 	
 	public void removeOPDSCatalog(Long id) {
-		log.i("removeOPDSCatalog(" + id + ")");
 		execSQLIgnoreErrors("DELETE FROM opds_catalog WHERE id = " + id);
 	}
 
     public ArrayList<FileInfo> loadFavoriteFolders() {
-        log.i("loadFavoriteFolders()");
         Cursor rs = null;
         ArrayList<FileInfo> list = new ArrayList<FileInfo>();
         try {
@@ -603,7 +587,6 @@ public class MainDB extends BaseDB {
 	}
 	
 	public boolean loadAuthorsList(FileInfo parent) {
-		Log.i("cr3", "loadAuthorsList()");
 		beginReading();
 		parent.clear();
 		ArrayList<FileInfo> list = new ArrayList<FileInfo>();
@@ -615,7 +598,6 @@ public class MainDB extends BaseDB {
 	}
 
 	public boolean loadSeriesList(FileInfo parent) {
-		Log.i("cr3", "loadSeriesList()");
 		beginReading();
 		parent.clear();
 		ArrayList<FileInfo> list = new ArrayList<FileInfo>();
@@ -627,7 +609,6 @@ public class MainDB extends BaseDB {
 	}
 	
 	public boolean loadTitleList(FileInfo parent) {
-		Log.i("cr3", "loadTitleList()");
 		beginReading();
 		parent.clear();
 		ArrayList<FileInfo> list = new ArrayList<FileInfo>();
@@ -823,7 +804,6 @@ public class MainDB extends BaseDB {
 		String insertQuery = "INSERT OR IGNORE INTO book_author (book_fk,author_fk) VALUES ";
 		for ( Long id : authors ) {
 			String sql = insertQuery + "(" + bookId + "," + id + ")"; 
-			//Log.v("cr3", "executing: " + sql);
 			mDB.execSQL(sql);
 		}
 	}
@@ -847,7 +827,6 @@ public class MainDB extends BaseDB {
 					if (item.exists())
 						continue;
 					if (item.size == fi.size) {
-						log.i("Found record for file of the same name and size: treat as moved " + item.filename + " " + item.size);
 						// fix and save
 						item.pathname = fi.pathname;
 						item.arcname = fi.arcname;
@@ -966,7 +945,6 @@ public class MainDB extends BaseDB {
 					if (!map.containsKey(key))
 						map.put(key, b);
 					else {
-						log.w("Removing non-unique bookmark " + b + " for " + fileInfo.getPathName());
 						deleteBookmark(b);
 					}
 				}
@@ -977,7 +955,6 @@ public class MainDB extends BaseDB {
 
 	private boolean save( Bookmark v, long bookId )
 	{
-		Log.d("cr3db", "saving bookmark id=" + v.getId() + ", bookId=" + bookId + ", pos=" + v.getStartPos());
 		if ( v.getId()!=null ) {
 			// update
 			Bookmark oldValue = new Bookmark();
@@ -1001,7 +978,6 @@ public class MainDB extends BaseDB {
 
 	public void saveBookInfo(BookInfo bookInfo)	{
 		if (!isOpened()) {
-			Log.e("cr3db", "cannot save book info : DB is closed");
 			return;
 		}
 		if (bookInfo == null || bookInfo.getFileInfo() == null)
@@ -1038,8 +1014,6 @@ public class MainDB extends BaseDB {
 				removed++;
 			}
 		}
-		if (added + changed + removed > 0)
-			vlog.i("bookmarks added:" + added + ", updated: " + changed + ", removed:" + removed);
 	}
 
 	private boolean save(FileInfo fileInfo)	{
@@ -1053,7 +1027,6 @@ public class MainDB extends BaseDB {
 			if (oldValue != null) {
 				// found, updating
 				if (!fileInfo.equals(oldValue)) {
-					vlog.d("updating file " + fileInfo.getPathName());
 					beginChanges();
 					QueryHelper h = new QueryHelper(fileInfo, oldValue);
 					h.update(fileInfo.id);
@@ -1061,7 +1034,6 @@ public class MainDB extends BaseDB {
 				authorsChanged = !eq(fileInfo.authors, oldValue.authors);
 			} else {
 				// inserting
-				vlog.d("inserting new file " + fileInfo.getPathName());
 				beginChanges();
 				QueryHelper h = new QueryHelper(fileInfo, new FileInfo());
 				fileInfo.id = h.insert();
@@ -1071,7 +1043,6 @@ public class MainDB extends BaseDB {
 			fileInfoCache.put(fileInfo);
 			if (fileInfo.id != null) {
 				if ( authorsChanged ) {
-					vlog.d("updating authors for file " + fileInfo.getPathName());
 					beginChanges();
 					Long[] authorIds = getAuthorIds(fileInfo.authors);
 					saveBookAuthors(fileInfo.id, authorIds);
@@ -1080,16 +1051,13 @@ public class MainDB extends BaseDB {
 			}
 			return false;
 		} catch (SQLiteException e) {
-			log.e("error while writing to DB", e);
 			return false;
 		}
 	}
 
 	public void saveFileInfos(Collection<FileInfo> list)
 	{
-		Log.v("cr3db", "save BookInfo collection: " + list.size() + " items");
 		if (!isOpened()) {
-			Log.e("cr3db", "cannot save book info : DB is closed");
 			return;
 		}
 		for (FileInfo fileInfo : list) {
@@ -1217,7 +1185,6 @@ public class MainDB extends BaseDB {
 				}
 				buf.append(")");
 				String sql = buf.toString();
-				Log.d("cr3db", "going to execute " + sql);
 				SQLiteStatement stmt = null;
 				Long id = null;
 				try {
@@ -1236,7 +1203,6 @@ public class MainDB extends BaseDB {
 							stmt.bindDouble(i, (Double)v);
 					}
 					id = stmt.executeInsert();
-					Log.d("cr3db", "added book, id=" + id + ", query=" + sql);
 				} finally {
 					if ( stmt!=null )
 						stmt.close();
@@ -1244,7 +1210,6 @@ public class MainDB extends BaseDB {
 				return id;
 			} catch ( Exception e ) {
 				Log.e("cr3db", "insert failed: " + e.getMessage());
-				Log.e("cr3db", "values: " + valueBuf.toString());
 				return null;
 			}
 		}
@@ -1265,7 +1230,6 @@ public class MainDB extends BaseDB {
 				first = false;
 			}
 			buf.append(" WHERE id=" + id );
-			vlog.v("executing " + buf);
 			mDB.execSQL(buf.toString(), values.toArray());
 			return true;
 		}
@@ -1292,8 +1256,6 @@ public class MainDB extends BaseDB {
 			add("create_time", (long)newValue.createTime, (long)oldValue.createTime);
 			add("flags", (long)newValue.flags, (long)oldValue.flags);
 			add("language", newValue.language, oldValue.language);
-			if (fields.size() == 0)
-				vlog.v("QueryHelper: no fields to update");
 		}
 		QueryHelper( Bookmark newValue, Bookmark oldValue, long bookId )
 		{
@@ -1439,7 +1401,6 @@ public class MainDB extends BaseDB {
 		
 		String condition = buf.length()==0 ? "" : " WHERE " + buf.toString();
 		String sql = READ_FILEINFO_SQL + condition;
-		Log.d("cr3", "sql: " + sql );
 		Cursor rs = null;
 		try { 
 			rs = mDB.rawQuery(sql, null);
@@ -1587,7 +1548,6 @@ public class MainDB extends BaseDB {
 	}
 	
 	public void correctFilePaths() {
-		Log.i("cr3", "checking data for path correction");
 		beginReading();
 		int rowCount = 0;
 		Map<String, Long> map = new HashMap<String, Long>();
@@ -1605,7 +1565,6 @@ public class MainDB extends BaseDB {
 						continue;
 					rowCount++;
 					if (corrected == null) {
-						Log.w("cr3", "DB contains unknown path " + pathname);
 					} else if (!pathname.equals(corrected)) {
 						map.put(pathname, id);
 					}
@@ -1617,7 +1576,6 @@ public class MainDB extends BaseDB {
 			if ( rs!=null )
 				rs.close();
 		}
-		Log.i("cr3", "Total rows: " + rowCount + ", " + (map.size() > 0 ? "need to correct " + map.size() + " items" : "no corrections required"));
 		if (map.size() > 0) {
 			beginChanges();
 			int count = 0;
@@ -1630,7 +1588,6 @@ public class MainDB extends BaseDB {
 				}
 			}
 			flush();
-			log.i("Finished. Rows corrected: " + count);
 		}
 	}
 	

@@ -3,8 +3,6 @@ package org.coolreader.crengine;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import android.util.Log;
-
 public class VMRuntimeHack {
 	private Object runtime = null;
 	private Method trackAllocation = null;
@@ -15,7 +13,6 @@ public class VMRuntimeHack {
 		if (runtime == null)
 			return false;
 		totalSize += size;
-		L.v("trackAlloc(" + size + ")  total=" + totalSize);
 		try {
 			Object res = trackAllocation.invoke(runtime, Long.valueOf(size));
 			return (res instanceof Boolean) ? (Boolean)res : true;
@@ -31,7 +28,6 @@ public class VMRuntimeHack {
 		if (runtime == null)
 			return false;
 		totalSize -= size;
-		L.v("trackFree(" + size + ")  total=" + totalSize);
 		try {
 			Object res = trackFree.invoke(runtime, Long.valueOf(size));
 			return (res instanceof Boolean) ? (Boolean)res : true;
@@ -62,7 +58,6 @@ public class VMRuntimeHack {
 		} catch (InvocationTargetException e) {
 		}
 		if (!success) {
-			Log.i("cr3", "VMRuntime hack does not work!");
 			runtime = null;
 			trackAllocation = null;
 			trackFree = null;

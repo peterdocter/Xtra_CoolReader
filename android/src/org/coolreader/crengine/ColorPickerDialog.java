@@ -176,11 +176,6 @@ public class ColorPickerDialog extends BaseDialog implements OnSeekBarChangeList
 		super.onPositiveButtonClick();
 	}
 
-//	@Override
-//	protected void onNegativeButtonClick() {
-//		onPositiveButtonClick();
-//	}
-
 	static class IconPreviewDrawable extends Drawable {
 		private Bitmap mBitmap;
 		private Bitmap mTmpBitmap;
@@ -287,15 +282,12 @@ public class ColorPickerDialog extends BaseDialog implements OnSeekBarChangeList
 		
 		@Override
 		protected boolean onLevelChange(int level) {
-//			Log.d(TAG, "onLevelChange " + level);
 			if (level < 4000 && mDelta <= 0) {
-//				Log.d(TAG, "onLevelChange scheduleSelf ++");
 				mDelta = 1;
 				mAnimation.startScrolling(mTextXScale, 1);
 				scheduleSelf(this, SystemClock.uptimeMillis() + DELAY);
 			} else
 			if (level > 6000 && mDelta >= 0) {
-//				Log.d(TAG, "onLevelChange scheduleSelf --");
 				mDelta = -1;
 				mAnimation.startScrolling(mTextXScale, 0);
 				scheduleSelf(this, SystemClock.uptimeMillis() + DELAY);
@@ -311,7 +303,6 @@ public class ColorPickerDialog extends BaseDialog implements OnSeekBarChangeList
 				// pending animation
 				mAnimation.getTransformation(AnimationUtils.currentAnimationTimeMillis(), null);
 				mTextXScale = mAnimation.getCurrent();
-//				Log.d(TAG, "draw " + mTextX + " " + SystemClock.uptimeMillis());
 			}
 			
 			Rect bounds = getBounds();
@@ -344,7 +335,6 @@ public class ColorPickerDialog extends BaseDialog implements OnSeekBarChangeList
 				scheduleSelf(this, SystemClock.uptimeMillis() + DELAY);
 			}
 			invalidateSelf();
-//			Log.d(TAG, "run " + mTextX + " " + SystemClock.uptimeMillis());
 		}
 	}
 	
@@ -369,7 +359,6 @@ public class ColorPickerDialog extends BaseDialog implements OnSeekBarChangeList
 		@Override
 		protected void applyTransformation(float interpolatedTime, Transformation t) {
 			mCurrent = mFrom + (mTo - mFrom) * interpolatedTime;
-//			Log.d(TAG, "applyTransformation " + mCurrent);
 		}
 		
 		public float getCurrent() {

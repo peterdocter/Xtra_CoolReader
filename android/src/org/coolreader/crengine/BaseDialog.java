@@ -85,7 +85,6 @@ public class BaseDialog extends Dialog {
 			//lp.memoryType = WindowManager.LayoutParams.MEMORY_TYPE_PUSH_BUFFERS;
 			getWindow().setAttributes(lp);
 		}
-		Log.i("cr3", "BaseDialog.window=" + getWindow());
         setCancelable(true);
         setOnDismissListener(new OnDismissListener() {
 			@Override
@@ -313,13 +312,11 @@ public class BaseDialog extends Dialog {
 				vel = -vel;
 			if (vel > thresholdVelocity && adist > thresholdDistance && adist > aydist * 2) {
 				if (dist > 0) {
-					Log.d("cr3", "LTR fling detected");
 					if (ltrHandler != null) {
 						ltrHandler.run();
 						return true;
 					}
 				} else {
-					Log.d("cr3", "RTL fling detected");
 					if (rtlHandler != null) {
 						rtlHandler.run();
 						return true;

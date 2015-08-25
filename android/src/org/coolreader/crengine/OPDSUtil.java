@@ -40,7 +40,7 @@ import android.util.Base64;
 
 public class OPDSUtil {
 
-	public static final boolean EXTENDED_LOG = false;
+    public static final boolean EXTENDED_LOG = false;
     public static final int CONNECT_TIMEOUT = 60000;
     public static final int READ_TIMEOUT = 60000;
 	/*
@@ -186,7 +186,6 @@ xml:base="http://lib.ololo.cc/opds/">
 			LinkInfo best = null;
 			int bestPriority = 0; 
 			for ( LinkInfo link : links ) {
-				//boolean isAcquisition = link.rel!=null && link.rel.indexOf("acquisition")>=0;
 				int priority = link.getPriority();
 				if (priority>0 && priority>bestPriority) {
 					if ( link.getPriority()>0 && (best==null || best.getPriority()<link.getPriority()) ) {
@@ -247,7 +246,6 @@ xml:base="http://lib.ololo.cc/opds/">
 				}
 			} catch (ParseException e) {
 			}
-			L.e("cannot parse timestamp " + ts);
 			return 0;
 		}
 		
@@ -260,7 +258,6 @@ xml:base="http://lib.ololo.cc/opds/">
 			s = s.trim();
 			if (s.length()==0 || (s.length()==1 && s.charAt(0) == '\n') )
 				return; // ignore empty line
-			//L.d(tab() + "  {" + s + "}");
 			String currentElement = elements.peek();
 			if ( currentElement==null )
 				return;
@@ -317,11 +314,6 @@ xml:base="http://lib.ololo.cc/opds/">
 		@Override
 		public void endDocument() throws SAXException {
 			super.endDocument();
-			if (EXTENDED_LOG) L.d("endDocument: " + entries.size() + " entries parsed");
-			if (EXTENDED_LOG) 
-				for ( EntryInfo entry : entries ) {
-					L.d("   " + entry.title + " : " + entry.link.toString());
-				}
 		}
 
 		private String tab() {
@@ -341,10 +333,7 @@ xml:base="http://lib.ololo.cc/opds/">
 			if ( qName!=null && qName.length()>0 )
 				localName = qName;
 			level++;
-			//L.d(tab() + "<" + localName + ">");
-			//currentAttributes = attributes;
 			elements.push(localName);
-			//String currentElement = elements.peek();
 			if ( !insideFeed && "feed".equals(localName) ) {
 				insideFeed = true;
 			} else if ( "entry".equals(localName) ) {
@@ -369,7 +358,6 @@ xml:base="http://lib.ololo.cc/opds/">
 			} else if ( "link".equals(localName) ) {
 				LinkInfo link = new LinkInfo(url, attributes);
 				if ( link.isValid() && insideFeed ) {
-					if (EXTENDED_LOG) L.d(tab()+link.toString());
 					if ( insideEntry ) {
 						if ( link.type!=null ) {
 							entryInfo.links.add(link);
@@ -401,8 +389,6 @@ xml:base="http://lib.ololo.cc/opds/">
 			super.endElement(uri, localName, qName);
 			if ( qName!=null && qName.length()>0 )
 				localName = qName;
-			//L.d(tab() + "</" + localName + ">");
-			//String currentElement = elements.peek();
 			if ( insideFeed && "feed".equals(localName) ) {
 				insideFeed = false;
 			} else if ( "entry".equals(localName) ) {
@@ -420,7 +406,6 @@ xml:base="http://lib.ololo.cc/opds/">
 				}
 				authorInfo = null;
 			} 
-			//currentAttributes = null;
 			if ( level>0 )
 				level--;
 		}
@@ -455,7 +440,6 @@ xml:base="http://lib.ololo.cc/opds/">
 			this.defaultFileName = defaultFileName;
 			this.username = username;
 			this.password = password;
-			L.d("Created DownloadTask for " + url);
 		}
 		private void setProgressMessage( String url, int totalSize ) {
 			progressMessage = coolReader.getString(org.coolreader.R.string.progress_downloading) + " " + url;
@@ -472,7 +456,7 @@ xml:base="http://lib.ololo.cc/opds/">
 					}
 					if (Services.getEngine() != null)
 						Services.getEngine().hideProgress();
-					callback.onError(msg);
+					// callback.onError(msg);
 				}
 			});
 		}
@@ -562,10 +546,8 @@ xml:base="http://lib.ololo.cc/opds/">
 				//XMLReader xr = sp.getXMLReader();				
 				sp.parse(is, handler);
 			} catch (SAXException se) {
-				L.e("sax error", se);
 				throw se;
 			} catch (IOException ioe) {
-				L.e("sax parse io error", ioe);
 				throw ioe;
 			}
 		}
@@ -596,10 +578,8 @@ xml:base="http://lib.ololo.cc/opds/">
 			return null;
 		}
 		private void downloadBook( final String type, final String url, InputStream is, int contentLength, final String fileName, final boolean isZip ) throws Exception {
-			L.d("Download requested: " + type + " " + url + " " + contentLength);
 			DocumentFormat fmt = DocumentFormat.byMimeType(type);
 			if ( fmt==null ) {
-				L.d("Download: unknown type " + type);
 				throw new Exception("Unknown file type " + type);
 			}
 			final File outDir = BackgroundThread.instance().callGUI(new Callable<File>() {
@@ -609,23 +589,16 @@ xml:base="http://lib.ololo.cc/opds/">
 				}
 			});
 			if ( outDir==null ) {
-				L.d("Cannot find writable location for downloaded file " + url);
 				throw new Exception("Cannot save file " + url);
 			}
 			final File outFile = generateFileName( outDir, fileName, type, isZip );
 			if ( outFile==null ) {
-				L.d("Cannot generate file name");
 				throw new Exception("Cannot generate file name");
 			}
-			L.d("Creating file: " + outFile.getAbsolutePath());
 			if ( outFile.exists() || !outFile.createNewFile() ) {
-				L.d("Cannot create file " + outFile.getAbsolutePath());
 				throw new Exception("Cannot create file");
 			}
 			
-			L.d("Download started: " + outFile.getAbsolutePath());
-//			long lastTs = System.currentTimeMillis(); 
-//			int lastPercent = -1;
 			FileOutputStream os = null;
 			boolean success = false;
 			try {
@@ -638,17 +611,6 @@ xml:base="http://lib.ololo.cc/opds/">
 						break;
 					os.write(buf, 0, bytesRead);
 					totalWritten += bytesRead;
-//					final int percent = totalWritten * 100 / contentLength;
-//					long ts = System.currentTimeMillis(); 
-//					if ( percent!=lastPercent && ts - lastTs > 1500 ) {
-//						L.d("Download progress: " + percent + "%");
-//						BackgroundThread.instance().postGUI(new Runnable() {
-//							@Override
-//							public void run() {
-//								callback.onDownloadProgress(type, url, percent);
-//							}
-//						});
-//					}
 				}
 				success = true;
 			} finally {
@@ -656,12 +618,10 @@ xml:base="http://lib.ololo.cc/opds/">
 					os.close();
 				if ( !success ) {
 					if ( outFile.exists() && outFile.isFile() ) {
-						L.w("deleting unsuccessully downloaded file " + outFile);
 						outFile.delete();
 					}
 				}
 			}
-			L.d("Download finished");
 			BackgroundThread.instance().executeGUI(new Runnable() {
 				@Override
 				public void run() {
@@ -705,24 +665,14 @@ xml:base="http://lib.ololo.cc/opds/">
 					if (oldAddress.startsWith("orobot://")) {
 					    newURL = new URL("http://" + oldAddress.substring(9)); // skip orobot://
 					    useOrobotProxy = true;
-					    L.d("Converting url - " + oldAddress + " to " + newURL + " for using ORobot proxy");
 					} else if (oldAddress.startsWith("orobots://")) {
 					    newURL = new URL("https://" + oldAddress.substring(10)); // skip orobots://
 					    useOrobotProxy = true;
-					    L.d("Converting url - " + oldAddress + " to " + newURL + " for using ORobot proxy");
 					}
 					Proxy proxy = null;
-                    System.setProperty("http.keepAlive", "false");					
+                                        System.setProperty("http.keepAlive", "false");					
 					if (useOrobotProxy) {
-                        // Set-up proxy
-                        //System.setProperty("http.proxyHost", "127.0.0.1");
-                        //System.setProperty("http.proxyPort", "8118");
-					    //L.d("Using ORobot proxy: " + proxy);
 					    proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 8118)); // ORobot proxy running on this device
-					    L.d("Using ORobot proxy: " + proxy);
-					} else {
-                        //System.clearProperty("http.proxyHost");
-                        //System.clearProperty("http.proxyPort");
 					}
 				    
 					URLConnection conn = proxy == null ? newURL.openConnection() : newURL.openConnection(proxy);
@@ -782,13 +732,10 @@ xml:base="http://lib.ololo.cc/opds/">
 		            		fileName = disp.substring(p + 9);
 		            	}
 		            }
-		            //connection.setDoOutput(true);
-		            //connection.set
 		            
 		            int response = -1;
 					
 					response = connection.getResponseCode();
-					if (EXTENDED_LOG) L.d("Response: " + response);
 					if ( response!=200 ) {
 						onError("Error " + response);
 						return;
@@ -801,9 +748,6 @@ xml:base="http://lib.ololo.cc/opds/">
 					String contentEncoding = connection.getContentEncoding();
 					int contentLen = connection.getContentLength();
 					//connection.getC
-					if (EXTENDED_LOG) L.d("Entity content length: " + contentLen);
-					if (EXTENDED_LOG) L.d("Entity content type: " + contentType);
-					if (EXTENDED_LOG) L.d("Entity content encoding: " + contentEncoding);
 					setProgressMessage( url.toString(), contentLen );
 					InputStream is = connection.getInputStream();
 					if (delayedProgress != null)
@@ -826,16 +770,13 @@ xml:base="http://lib.ololo.cc/opds/">
 							contentType = "application/atom+xml"; // override type
 					}
 					if ( contentType.startsWith("application/atom+xml") ) {
-						if (EXTENDED_LOG) L.d("Parsing feed");
 						parseFeed( is );
 						itemsLoadedPartially = true;
 						if (handler.docInfo.nextLink!=null && handler.docInfo.nextLink.type.startsWith("application/atom+xml;profile=opds-catalog")) {
 							if (handler.entries.size() < MAX_OPDS_ITEMS) {
 								url = new URL(handler.docInfo.nextLink.href);
 								loadNext = !visited.contains(url.toString());
-								L.d("continue with next part: " + url);
 							} else {
-								L.d("max item count reached: " + handler.entries.size());
 								loadNext = false;
 							}
 						} else {
@@ -845,7 +786,6 @@ xml:base="http://lib.ololo.cc/opds/">
 					} else {
 						if ( fileName==null )
 							fileName = defaultFileName;
-						L.d("Downloading book: " + contentEncoding);
 						downloadBook( contentType, url.toString(), is, contentLen, fileName, isZip );
 						if ( progressShown )
 							Services.getEngine().hideProgress();
@@ -853,7 +793,6 @@ xml:base="http://lib.ololo.cc/opds/">
 						itemsLoadedPartially = false;
 					}
 				} catch (Exception e) {
-					L.e("Exception while trying to open URI " + url.toString(), e);
 					if ( progressShown )
 						Services.getEngine().hideProgress();
 					onError("Error occured while reading OPDS catalog");
@@ -878,7 +817,6 @@ xml:base="http://lib.ololo.cc/opds/">
 					BackgroundThread.instance().executeGUI(new Runnable() {
 						@Override
 						public void run() {
-							L.d("Parsing is partially. " + handler.entries.size() + " entries found -- updating view");
 							if (!callback.onEntries(handler.docInfo, entries))
 								cancel();
 						}
@@ -891,7 +829,6 @@ xml:base="http://lib.ololo.cc/opds/">
 				BackgroundThread.instance().executeGUI(new Runnable() {
 					@Override
 					public void run() {
-						L.d("Parsing is finished successfully. " + handler.entries.size() + " entries found");
 						if (!callback.onFinish(handler.docInfo, handler.entries))
 							cancel();
 					}
@@ -913,7 +850,6 @@ xml:base="http://lib.ololo.cc/opds/">
 
 		public void cancel() {
 			if (!cancelled) {
-				L.d("cancelling current download task");
 				cancelled = true;
 			}
 		}

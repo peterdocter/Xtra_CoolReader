@@ -58,11 +58,7 @@ public class DelayedExecutor {
 			public void run() {
 				try {
 					if (currentTask != null) {
-						log.v("Running task " + toString());
 						task.run();
-						log.v("Done task " + toString());
-					} else {
-						log.w("Skipping probably canceled task " + toString());
 					}
 				} catch (Exception e) {
 					log.e("Exception while executing task", e);
@@ -76,15 +72,12 @@ public class DelayedExecutor {
 		};
 		synchronized(this) {
 			if (currentTask != null) {
-				log.d("Cancelling pending task " + currentTask);
 				getHandler().removeCallbacks(currentTask); // cancel pending task, replace with new one
 			}
 			currentTask = myTask;
 			if (delay > 0) {
-				log.d("Posting delayed task " + currentTask + " delay=" + delay);
 				getHandler().postDelayed(currentTask, delay);
 			} else {
-				log.d("Posting task " + currentTask);
 				getHandler().post(currentTask);
 			}
 		}
@@ -93,7 +86,6 @@ public class DelayedExecutor {
 	public void cancel() {
 		synchronized(this) {
 			if (currentTask != null) {
-				log.d("Cancelling pending task " + currentTask);
 				getHandler().removeCallbacks(currentTask); // cancel pending task, replace with new one
 				currentTask = null;
 			}

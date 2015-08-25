@@ -15,7 +15,6 @@ public class Scanner extends FileInfoChangeSource {
 	public static final Logger log = L.create("sc");
 	
 	HashMap<String, FileInfo> mFileList = new HashMap<String, FileInfo>();
-//	ArrayList<FileInfo> mFilesForParsing = new ArrayList<FileInfo>();
 	FileInfo mRoot;
 	
 	boolean mHideEmptyDirs = true;
@@ -40,10 +39,8 @@ public class Scanner extends FileInfoChangeSource {
 		try {
 			File zf = new File(zip.pathname);
 			long arcsize = zf.length();
-			//ZipFile file = new ZipFile(zf);
 			ArrayList<ZipEntry> entries = engine.getArchiveItems(zip.pathname);
 			ArrayList<FileInfo> items = new ArrayList<FileInfo>();
-			//for ( Enumeration<?> e = file.entries(); e.hasMoreElements(); ) {
 			for ( ZipEntry entry : entries ) {
 				if ( entry.isDirectory() )
 					continue;
@@ -57,7 +54,6 @@ public class Scanner extends FileInfoChangeSource {
 				item.path = f.getPath();
 				item.pathname = entry.getName();
 				item.size = (int)entry.getSize();
-				//item.createTime = entry.getTime();
 				item.createTime = zf.lastModified();
 				item.arcname = zip.pathname;
 				item.arcsize = (int)entry.getCompressedSize();
@@ -65,7 +61,6 @@ public class Scanner extends FileInfoChangeSource {
 				items.add(item);
 			}
 			if ( items.size()==0 ) {
-				L.i("Supported files not found in " + zip.pathname);
 				return null;
 			} else if ( items.size()==1 ) {
 				// single supported file in archive
@@ -117,7 +112,6 @@ public class Scanner extends FileInfoChangeSource {
 				for ( File f : items ) {
 					// check whether file is a link
 					if (Engine.isLink(f.getAbsolutePath()) != null) {
-						log.w("skipping " + f + " because it's a link");
 						continue;
 					}
 					if (!f.isDirectory()) {
@@ -204,7 +198,6 @@ public class Scanner extends FileInfoChangeSource {
 	 * @param dir is directory with changed content
 	 */
 	public void onDirectoryContentChanged(FileInfo dir) {
-		log.v("onDirectoryContentChanged(" + dir.getPathName() + ")");
 		onChange(dir, false);
 	}
 	
@@ -218,7 +211,6 @@ public class Scanner extends FileInfoChangeSource {
 	private void scanDirectoryFiles(final CRDBService.LocalBinder db, final FileInfo baseDir, final ScanControl control, final Engine.ProgressControl progress, final Runnable readyCallback) {
 		// GUI thread
 		BackgroundThread.ensureGUI();
-		log.d("scanDirectoryFiles(" + baseDir.getPathName() + ") ");
 		
 		// store list of files to scan
 		ArrayList<String> pathNames = new ArrayList<String>();
@@ -242,7 +234,6 @@ public class Scanner extends FileInfoChangeSource {
 		db.loadFileInfos(pathNames, new CRDBService.FileInfoLoadingCallback() {
 			@Override
 			public void onFileInfoListLoaded(ArrayList<FileInfo> list) {
-				log.v("onFileInfoListLoaded");
 				// GUI thread
 				final ArrayList<FileInfo> filesForParsing = new ArrayList<FileInfo>();
 				ArrayList<FileInfo> filesForSave = new ArrayList<FileInfo>();
@@ -328,8 +319,6 @@ public class Scanner extends FileInfoChangeSource {
 		// Call in GUI thread only!
 		BackgroundThread.ensureGUI();
 
-		log.d("scanDirectory(" + baseDir.getPathName() + ") " + (recursiveScan ? "recursive" : ""));
-		
 		listDirectory(baseDir);
 		listSubtree( baseDir, 2, android.os.SystemClock.uptimeMillis() + 700 );
 		if ( (!getDirScanEnabled() || baseDir.isScanned) && !recursiveScan ) {
@@ -416,20 +405,15 @@ public class Scanner extends FileInfoChangeSource {
 		dir.filename = filename;
 		dir.title = filename;
 		if (findRoot(pathname) != null) {
-			log.w("skipping duplicate root " + pathname);
 			return false; // exclude duplicates
 		}
 		if (listIt) {
-			log.i("Checking FS root " + pathname);
 			if (!dir.isReadableDirectory()) { // isWritableDirectory
-				log.w("Skipping " + pathname + " - it's not a readable directory");
 				return false;
 			}
 			if (!listDirectory(dir)) {
-				log.w("Skipping " + pathname + " - listing failed");
 				return false;
 			}
-			log.i("Adding FS root: " + pathname + "  " + filename);
 		}
 		mRoot.addDir(dir);
 		dir.parent = mRoot;
@@ -662,7 +646,6 @@ public class Scanner extends FileInfoChangeSource {
 			autoAddRootForFile(new File(file.pathname) );
 			parent = findParentInternal(file, root);
 			if ( parent==null ) {
-				L.e("Cannot find root directory for file " + file.pathname);
 				return null;
 			}
 		}
@@ -748,7 +731,6 @@ public class Scanner extends FileInfoChangeSource {
 	}
 	
 	public void initRoots(Map<String, String> fsRoots) {
-		Log.d("cr3", "Scanner.initRoots(" + fsRoots + ")");
 		mRoot.clear();
 		// create recent books dir
 		addRoot( FileInfo.RECENT_DIR_TAG, R.string.dir_recent_books, false);
@@ -779,38 +761,10 @@ public class Scanner extends FileInfoChangeSource {
 			p = p.getParentFile();
 		}
 		if ( p!=null ) {
-			L.i("Found possible mount point " + p.getAbsolutePath());
 			return addRoot(p.getAbsolutePath(), p.getAbsolutePath(), true);
 		}
 		return false;
 	}
-	
-//	public boolean scan()
-//	{
-//		L.i("Started scanning");
-//		long start = System.currentTimeMillis();
-//		mFileList.clear();
-//		mFilesForParsing.clear();
-//		mRoot.clear();
-//		// create recent books dir
-//		FileInfo recentDir = new FileInfo();
-//		recentDir.isDirectory = true;
-//		recentDir.pathname = "@recent";
-//		recentDir.filename = "Recent Books";
-//		mRoot.addDir(recentDir);
-//		recentDir.parent = mRoot;
-//		// scan directories
-//		lastPercent = -1;
-//		lastProgressUpdate = System.currentTimeMillis() - 500;
-//		boolean res = scanDirectories( mRoot );
-//		// process found files
-//		lookupDB();
-//		parseBookProperties();
-//		updateProgress(9999);
-//		L.i("Finished scanning (" + (System.currentTimeMillis()-start)+ " ms)");
-//		return res;
-//	}
-	
 	
 	public ArrayList<FileInfo> getLibraryItems() {
 		ArrayList<FileInfo> result = new ArrayList<FileInfo>();
@@ -840,9 +794,7 @@ public class Scanner extends FileInfoChangeSource {
 					return books;
 				File dir = new File(item.getPathName());
 				if (dir.isDirectory()) {
-					if (!dir.canWrite())
-						Log.w("cr3", "Directory " + dir + " is readonly");
-					File f = new File( dir, "Books" );
+                                        File f = new File( dir, "Books" );
 					if ( f.mkdirs() || f.isDirectory() ) {
 						books = new FileInfo(f);
 						books.parent = item;
@@ -857,11 +809,8 @@ public class Scanner extends FileInfoChangeSource {
 		File fd = mActivity.getFilesDir();
 		File downloadDir = new File(fd, "downloads");
 		if (downloadDir.mkdirs()) {
-			Log.d("cr3", "download dir: " + downloadDir);
 			FileInfo books = null;
 			books = new FileInfo(downloadDir);
-			//books.parent = item;
-			//item.addDir(books);
 			books.isScanned = true;
 			books.isListed = true;
 			return books;
@@ -890,7 +839,6 @@ public class Scanner extends FileInfoChangeSource {
 			if ( mRoot.getDir(i).isOPDSRoot() )
 				return mRoot.getDir(i);
 		}
-		L.w("OPDS root directory not found!");
 		return null;
 	}
 	
@@ -900,7 +848,6 @@ public class Scanner extends FileInfoChangeSource {
 			if ( mRoot.getDir(i).isRecentDir())
 				return mRoot.getDir(i);
 		}
-		L.w("Recent books directory not found!");
 		return null;
 	}
 	

@@ -18,8 +18,6 @@ public class BrowserViewLayout extends ViewGroup {
 		super(context);
 		this.activity = context;
 		this.contentView = contentView;
-		
-		
 		this.titleView = titleView;
 		this.titleView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		this.toolbarView = toolbar;
@@ -45,8 +43,6 @@ public class BrowserViewLayout extends ViewGroup {
 	}
 	
 	public void onThemeChanged(InterfaceTheme theme) {
-		//titleView.setBackgroundResource(theme.getBrowserStatusBackground());
-		//toolbarView.setButtonAlpha(theme.getToolbarButtonAlpha());
 		LayoutInflater inflater = LayoutInflater.from(activity);// activity.getLayoutInflater();
 		removeView(titleView);
 		titleView = inflater.inflate(R.layout.browser_status_bar, null);
@@ -142,7 +138,6 @@ public class BrowserViewLayout extends ViewGroup {
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
 			long duration = Utils.timeInterval(menuDownTs);
-			L.v("BrowserViewLayout.onKeyUp(" + keyCode + ") duration = " + duration);
 			if (duration > 700 && duration < 10000)
 				activity.showBrowserOptionsDialog();
 			else
@@ -151,7 +146,6 @@ public class BrowserViewLayout extends ViewGroup {
 		}
 		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
 			long duration = Utils.timeInterval(backDownTs);
-			L.v("BrowserViewLayout.onKeyUp(" + keyCode + ") duration = " + duration);
 			if (duration > 700 && duration < 10000) {
 				activity.finish();
 				return true;

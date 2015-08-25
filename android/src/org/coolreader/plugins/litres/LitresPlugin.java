@@ -41,8 +41,6 @@ public class LitresPlugin implements OnlineStorePlugin {
 		connection = LitresConnection.create(preferences);
 	}
 	
-	
-	
 	@Override
 	public String getFirstAuthorNameLetters() {
 		return "абвгдежзийклмнопрстуфхцчшщыэюя";

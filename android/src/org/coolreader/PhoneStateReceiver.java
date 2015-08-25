@@ -14,23 +14,17 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 		int lastState = -1;
 		@Override
 		public void onCallStateChanged(int state, String incomingNumber){
-		        Log.v("cr3", "onCallStateChange state=" + state);
 		        if (state == lastState)
 		        	return;
 		        lastState = state;
 		        switch(state){
 	                case TelephonyManager.CALL_STATE_IDLE:
-//	                    Log.d("cr3", "call state: IDLE");
-//	                    if (onPhoneActivityStartedHandler != null)
-//	                    	onPhoneActivityStartedHandler.run();
 	                    break;
 	                case TelephonyManager.CALL_STATE_RINGING:
-                        Log.d("cr3", "call state: RINGING");
                         if (onPhoneActivityStartedHandler != null)
                         	onPhoneActivityStartedHandler.run();
                         break;
 	                case TelephonyManager.CALL_STATE_OFFHOOK:
-                        Log.d("cr3", "call state: OFFHOOK");
                         if (onPhoneActivityStartedHandler != null)
                         	onPhoneActivityStartedHandler.run();
                         break;

@@ -40,10 +40,8 @@ import org.xml.sax.SAXException;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
-import android.util.Log;
 
 public class LitresConnection {
-	final static String TAG = "litres";
 	
 	public static final String AUTHORIZE_URL = "http://robot.litres.ru/pages/catalit_authorise/";
 	public static final String REGISTER_URL = "http://robot.litres.ru/pages/catalit_register_user/";
@@ -77,7 +75,6 @@ public class LitresConnection {
     private static final int READ_TIMEOUT = 60000;
     private static final int MAX_CONTENT_LEN_TO_BUFFER = 1000000;
 	public void sendXMLRequest(final String url, final Map<String, String> params, final ResponseHandler contentHandler, final ResultHandler resultHandler) {
-		Log.i(TAG, "sending request to " + url);
 		final Handler callbackHandler = new Handler();
 		workerThread.post(new Runnable() {
 			void onError(int errorCode, String errorMessage) {
@@ -111,13 +108,11 @@ public class LitresConnection {
 						return;
 					}
 					connection = (HttpURLConnection)conn;
-					Log.i(TAG, "opened connection");
 		            connection.setRequestProperty("User-Agent", "CoolReader/3(Android)");
 		            connection.setInstanceFollowRedirects(true);
 		            connection.setAllowUserInteraction(false);
 		            connection.setConnectTimeout(CONNECT_TIMEOUT);
 		            connection.setReadTimeout(READ_TIMEOUT);
-		            //connection.setDoInput(true);
             		connection.setDoOutput(true);
 		            connection.setRequestMethod("POST");
 		            
@@ -125,11 +120,8 @@ public class LitresConnection {
 		            for (Map.Entry<String, String> entry : params.entrySet())
 		            	list.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 		            UrlEncodedFormEntity postParams = new UrlEncodedFormEntity(list, "utf-8");
-					//Log.d(TAG, "params: " + postParams.toString());
 					OutputStream wr = connection.getOutputStream();
-					//OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
 					postParams.writeTo(wr);
-                    //wr.write(postParams.toString());
 					wr.flush();
 					wr.close();
 					
@@ -141,8 +133,6 @@ public class LitresConnection {
 		            		fileName = disp.substring(p + 9);
 		            	}
 		            }
-		            //connection.setDoOutput(true);
-		            //connection.set
 		            
 		            int response = -1;
 					
@@ -216,7 +206,6 @@ public class LitresConnection {
 	}
 	
 	public void sendFileRequest(final String url, final Map<String, String> params, final File fileToStore, final FileResponse contentHandler, final ResultHandler resultHandler) {
-		Log.i(TAG, "sending request to " + url);
 		final Handler callbackHandler = new Handler();
 		workerThread.post(new Runnable() {
 			void onError(int errorCode, String errorMessage) {
@@ -249,7 +238,6 @@ public class LitresConnection {
 						return;
 					}
 					connection = (HttpURLConnection)conn;
-					Log.i(TAG, "opened connection");
 		            connection.setRequestProperty("User-Agent", "CoolReader/3(Android)");
 		            connection.setInstanceFollowRedirects(true);
 		            connection.setAllowUserInteraction(false);
@@ -262,20 +250,14 @@ public class LitresConnection {
 			            for (Map.Entry<String, String> entry : params.entrySet())
 			            	list.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 			            UrlEncodedFormEntity postParams = new UrlEncodedFormEntity(list, "utf-8");
-						//Log.d(TAG, "params: " + postParams.toString());
 						OutputStream wr = connection.getOutputStream();
-						//OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
 						postParams.writeTo(wr);
-	                    //wr.write(postParams.toString());
 						wr.flush();
 						wr.close();
 		            } else {
-		            	//Log.d(TAG, "setting up GET method");
 			            connection.setDoInput(true);
 			            connection.setRequestMethod("GET");
-	            		//connection.setDoOutput(true);
-			            //connection.setRequestMethod("POST");
-	            		connection.connect();
+                                    connection.connect();
 		            }
 		            
 		            int response = -1;
@@ -309,10 +291,8 @@ public class LitresConnection {
 							is = new GZIPInputStream(new BufferedInputStream(is, 8192));
 						}
 						
-						Log.i(TAG, "downloading file to " + contentHandler.fileToSave + "  contentLen=" + contentLen);
 						os = new FileOutputStream(contentHandler.fileToSave);
 						int bytesRead = Utils.copyStreamContent(os, is);
-						Log.i(TAG, "downloaded bytes: " + bytesRead);
 					} finally {
 						try {
 							if (os != null)
@@ -469,7 +449,6 @@ public class LitresConnection {
 			@Override
 			public void startElement(String uri, String localName,
 					String qName, Attributes attributes) throws SAXException {
-				//Log.d(TAG, "startElement " + localName);
 				if ("catalit-persons".equals(localName))
 					insideCatalitPersons = true;
 				else if ("subject".equals(localName)) {
@@ -582,7 +561,6 @@ public class LitresConnection {
 			@Override
 			public void startElement(String uri, String localName,
 					String qName, Attributes attributes) throws SAXException {
-				//Log.d(TAG, "startElement " + localName);
 				if ("catalit-authorization-failed".equals(localName)) {
 					onError(25, "Authorization failed");
 				} else if ("catalit-fb2-books".equals(localName)) {
@@ -933,7 +911,6 @@ public class LitresConnection {
 		String url = null;
 		if (trial) {
 			url = book.trialUrl;
-			Log.d(TAG, "trialUrl=" + url);
 		} else {
 			params = new HashMap<String, String>();
 			url = DOWNLOAD_BOOK_URL;

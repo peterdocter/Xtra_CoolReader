@@ -15,14 +15,12 @@ import java.util.Collection;
 
 public class CRDBService extends Service {
 	public static final Logger log = L.create("db");
-	public static final Logger vlog = L.create("db", Log.ASSERT);
 
     private MainDB mainDB = new MainDB();
     private CoverDB coverDB = new CoverDB();
 	
     @Override
     public void onCreate() {
-    	log.i("onCreate()");
     	mThread = new ServiceThread("crdb");
     	mThread.start();
     	execTask(new OpenDatabaseTask());
@@ -30,7 +28,6 @@ public class CRDBService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        log.i("Received start id " + startId + ": " + intent);
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
@@ -38,7 +35,6 @@ public class CRDBService extends Service {
 
     @Override
     public void onDestroy() {
-    	log.i("onDestroy()");
     	execTask(new CloseDatabaseTask());
     	mThread.stop(5000);
     }
@@ -50,11 +46,8 @@ public class CRDBService extends Service {
     	if (cr3dir.isDirectory())
     		cr3dir.mkdirs();
     	if (!cr3dir.isDirectory() || !cr3dir.canWrite()) {
-	    	log.w("Cannot use " + cr3dir + " for writing database, will use data directory instead");
-	    	log.w("getFilesDir=" + getFilesDir() + " getDataDirectory=" + Environment.getDataDirectory());
     		cr3dir = getFilesDir(); //Environment.getDataDirectory();
     	}
-    	log.i("DB directory: " + cr3dir);
     	return cr3dir;
     }
     
@@ -585,13 +578,11 @@ public class CRDBService extends Service {
 		@Override
 		public void run() {
 			long ts = Utils.timeStamp();
-			vlog.v(toString() + " started");
 			try {
 				work();
 			} catch (Exception e) {
 				log.e("Exception while running DB task in background", e);
 			}
-			vlog.v(toString() + " finished in " + Utils.timeInterval(ts) + " ms");
 		}
 		
 		public abstract void work();
@@ -599,37 +590,33 @@ public class CRDBService extends Service {
 	
 	/**
 	 * Execute runnable in CDRDBService background thread.
-	 * Exceptions will be ignored, just dumped into log.
+	 * Exceptions will be ignored.
 	 * @param task is Runnable to execute
 	 */
 	private void execTask(final Task task) {
-		vlog.v("Posting task " + task);
 		mThread.post(task);
 	}
 	
 	/**
 	 * Execute runnable in CDRDBService background thread, delayed.
-	 * Exceptions will be ignored, just dumped into log.
+	 * Exceptions will be ignored.
 	 * @param task is Runnable to execute
 	 */
 	private void execTask(final Task task, long delay) {
-		vlog.v("Posting task " + task + " with delay " + delay);
 		mThread.postDelayed(task, delay);
 	}
 	
 	/**
 	 * Send task to handler, if specified, otherwise run immediately.
-	 * Exceptions will be ignored, just dumped into log.
+	 * Exceptions will be ignored.
 	 * @param handler is handler to send task to, null to run immediately
 	 * @param task is Runnable to execute
 	 */
 	private void sendTask(Handler handler, Runnable task) {
 		try {
 			if (handler != null) {
-				vlog.v("Senging task to " + handler.toString());
 				handler.post(task);
 			} else {
-				vlog.v("No Handler provided: executing task in current thread");
 				task.run();
 			}
 		} catch (Exception e) {

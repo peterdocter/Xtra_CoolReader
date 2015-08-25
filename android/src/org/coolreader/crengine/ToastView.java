@@ -32,8 +32,7 @@ public class ToastView {
         }
     }
 
-
-	private static View mReaderView;
+    private static View mReaderView;
     private static LinkedBlockingQueue<Toast> queue = new LinkedBlockingQueue<Toast>();
     private static AtomicBoolean showing = new AtomicBoolean(false);
     private static Handler mHandler = new Handler();
@@ -76,13 +75,6 @@ public class ToastView {
         window.setFocusable(false);
         window.setOutsideTouchable(true);
         window.setBackgroundDrawable(null);
-        /* LinearLayout ll = new LinearLayout(t.anchor.getContext());
-        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-        TextView tv = new TextView(t.anchor.getContext());
-        tv.setText(t.msg);
-        ll.setGravity(Gravity.CENTER);
-        ll.addView(tv);*/
         LayoutInflater inflater = (LayoutInflater) t.anchor.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         window.setContentView(inflater.inflate(R.layout.custom_toast, null, true));
         TextView tv = (TextView) window.getContentView().findViewById(R.id.toast);

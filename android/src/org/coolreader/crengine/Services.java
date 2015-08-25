@@ -12,19 +12,16 @@ public class Services {
 	private static Scanner mScanner;
 	private static History mHistory;
 	private static CoverpageManager mCoverpageManager;
-    private static FileSystemFolders mFSFolders;
+        private static FileSystemFolders mFSFolders;
 
 	public static Engine getEngine() { return mEngine; }
 	public static Scanner getScanner() { return mScanner; }
 	public static History getHistory() { return mHistory; }
-    public static CoverpageManager getCoverpageManager() { return mCoverpageManager; }
-    public static FileSystemFolders getFileSystemFolders() { return mFSFolders; }
+        public static CoverpageManager getCoverpageManager() { return mCoverpageManager; }
+        public static FileSystemFolders getFileSystemFolders() { return mFSFolders; }
 
 	public static void startServices(BaseActivity activity) {
-		log.i("First activity is created");
-		// testing background thread
-		//mSettings = activity.settings();
-		
+
 		BackgroundThread.instance().setGUIHandler(new Handler());
 				
 		mEngine = Engine.getInstance(activity);
@@ -44,16 +41,13 @@ public class Services {
 	}
 
 	public static void stopServices() {
-		log.i("Last activity is destroyed");
 		if (mCoverpageManager == null) {
-			log.i("Will not destroy services: finish only activity creation detected");
 			return;
 		}
 		mCoverpageManager.clear();
 		BackgroundThread.instance().postBackground(new Runnable() {
 			@Override
 			public void run() {
-				log.i("Stopping background thread");
 				if (mEngine == null)
 					return;
 				mEngine.uninit();

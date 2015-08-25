@@ -123,7 +123,6 @@ public class BaseActivity extends Activity implements Settings {
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-		log.i("BaseActivity.onCreate() entered");
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		mDecorView = getWindow().getDecorView();
 
@@ -137,7 +136,6 @@ public class BaseActivity extends Activity implements Settings {
 		} catch ( NameNotFoundException e ) {
 			// ignore
 		}
-		log.i("CoolReader version : " + getVersion());
 
 		Display d = getWindowManager().getDefaultDisplay();
 		DisplayMetrics m = new DisplayMetrics(); 
@@ -148,7 +146,6 @@ public class BaseActivity extends Activity implements Settings {
 				Object v = fld.get(m);
 				if ( v!=null && v instanceof Integer ) {
 					densityDpi = ((Integer)v).intValue();
-					log.i("Screen density detected: " + densityDpi + "DPI");
 				}
 			}
 		} catch ( Exception e ) {
@@ -158,8 +155,6 @@ public class BaseActivity extends Activity implements Settings {
 		float heightInches = m.heightPixels / densityDpi;
 		diagonalInches = (float)Math.sqrt(widthInches * widthInches + heightInches * heightInches);
 		
-		log.i("diagonal=" + diagonalInches + "  isSmartphone=" + isSmartphone());
-		//log.i("CoolReader.window=" + getWindow());
 		if (!DeviceInfo.EINK_SCREEN) {
 			WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
 			lp.alpha = 1.0f;
@@ -228,10 +223,8 @@ public class BaseActivity extends Activity implements Settings {
 
 	@Override
 	protected void onPause() {
-		log.i("CoolReader.onPause() : saving reader state");
 		mIsStarted = false;
 		mPaused = true;
-//		setScreenUpdateMode(-1, mReaderView);
 		einkRefresh();
 		releaseBacklightControl();
 		super.onPause();
@@ -249,7 +242,6 @@ public class BaseActivity extends Activity implements Settings {
 	
 	@Override
 	protected void onResume() {
-		log.i("CoolReader.onResume()");
 		mPaused = false;
 		mIsStarted = true;
 		backlightControl.onUserActivity();
@@ -337,21 +329,10 @@ public class BaseActivity extends Activity implements Settings {
 		//View contentView = getContentView();
 		if (contentView != null) {
 			if (bgRes != 0) {
-				//Drawable d = getResources().getDrawable(bgRes);
-				//log.v("Setting background resource " + d.getIntrinsicWidth() + "x" + d.getIntrinsicHeight());
-				//contentView.setBackgroundResource(null);
 				contentView.setBackgroundResource(bgRes);
-				//getWindow().setBackgroundDrawableResource(bgRes);//Drawable(d);
-				//getWindow().setBackgroundDrawable(d);
 			} else if (clBackground != 0) {
 				contentView.setBackgroundColor(clBackground);
-				//getWindow().setBackgroundDrawable(Utils.solidColorDrawable(clBackground));
 			}
-		} else {
-//			if (bgRes != 0)
-//				getWindow().setBackgroundDrawableResource(bgRes);
-//			else if (clBackground != 0)
-//				getWindow().setBackgroundDrawable(Utils.solidColorDrawable(clBackground));
 		}
 		a.recycle();
 		Display display = getWindowManager().getDefaultDisplay();
@@ -367,7 +348,6 @@ public class BaseActivity extends Activity implements Settings {
         }
 
 	public void setCurrentTheme(InterfaceTheme theme) {
-		log.i("setCurrentTheme(" + theme + ")");
 		currentTheme = theme;
 		getApplication().setTheme(theme.getThemeId());
 		setTheme(theme.getThemeId());
@@ -381,11 +361,6 @@ public class BaseActivity extends Activity implements Settings {
 			WindowManager.LayoutParams attrs = wnd.getAttributes();
 			attrs.screenOrientation = screenOrientation;
 			wnd.setAttributes(attrs);
-			if (DeviceInfo.EINK_SCREEN){
-				//TODO:
-				//EinkScreen.ResetController(mReaderView);
-			}
-			
 		}
 	}
 
@@ -453,7 +428,6 @@ public class BaseActivity extends Activity implements Settings {
 			break;
 		}
 		if (newOrientation != screenOrientation) {
-			log.d("setScreenOrientation(" + angle + ")");
 			screenOrientation = newOrientation;
 			setRequestedOrientation(screenOrientation);
 			applyScreenOrientation(getWindow());
@@ -471,26 +445,6 @@ public class BaseActivity extends Activity implements Settings {
 	public void onConfigurationChanged(Configuration newConfig) {
 		// pass
 		orientationFromSensor = newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
-		//final int orientation = newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-//		if ( orientation!=screenOrientation ) {
-//			log.d("Screen orientation has been changed: ask for change");
-//			AlertDialog.Builder dlg = new AlertDialog.Builder(this);
-//			dlg.setTitle(R.string.win_title_screen_orientation_change_apply);//R.string.win_title_options_apply);
-//			dlg.setPositiveButton(R.string.dlg_button_ok, new OnClickListener() {
-//				public void onClick(DialogInterface arg0, int arg1) {
-//					//onPositiveButtonClick();
-//					Properties oldSettings = mReaderView.getSettings();
-//					Properties newSettings = new Properties(oldSettings);
-//					newSettings.setInt(ReaderView.PROP_APP_SCREEN_ORIENTATION, orientation==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ? 1 : 0);
-//					mReaderView.setSettings(newSettings, oldSettings);
-//				}
-//			});
-//			dlg.setNegativeButton(R.string.dlg_button_cancel, new OnClickListener() {
-//				public void onClick(DialogInterface arg0, int arg1) {
-//					//onNegativeButtonClick();
-//				}
-//			});
-//		}
 		super.onConfigurationChanged(newConfig);
 	}
 
@@ -502,7 +456,6 @@ public class BaseActivity extends Activity implements Settings {
 	public void applyFullscreen( Window wnd )
 	{
 		if ( mFullscreen ) {
-		//mActivity.getWindow().requestFeature(Window.)
 		wnd.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 		        WindowManager.LayoutParams.FLAG_FULLSCREEN );
 		} else {
@@ -521,43 +474,6 @@ public class BaseActivity extends Activity implements Settings {
 	}
 	
 	private final static int SYSTEM_UI_FLAG_LOW_PROFILE = 1;
-//	private final static int SYSTEM_UI_FLAG_HIDE_NAVIGATION = 2;
-//	
-//	private final static int SYSTEM_UI_FLAG_VISIBLE = 0;
-
-//	public void simulateTouch() {
-//		// Obtain MotionEvent object
-//		long downTime = SystemClock.uptimeMillis();
-//		long eventTime = SystemClock.uptimeMillis() + 10;
-//		float x = 0.0f;
-//		float y = 0.0f;
-//		// List of meta states found here: developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
-//		int metaState = 0;
-//		MotionEvent motionEvent = MotionEvent.obtain(
-//		    downTime, 
-//		    downTime, 
-//		    MotionEvent.ACTION_DOWN, 
-//		    x, 
-//		    y, 
-//		    metaState
-//		);
-//		MotionEvent motionEvent2 = MotionEvent.obtain(
-//			    downTime, 
-//			    eventTime, 
-//			    MotionEvent.ACTION_UP, 
-//			    x, 
-//			    y, 
-//			    metaState
-//			);
-//		//motionEvent.setEdgeFlags(flags)
-//		// Dispatch touch event to view
-//		//new Handler().dispatchMessage(motionEvent);
-//		if (getContentView() != null) {
-//			getContentView().dispatchTouchEvent(motionEvent);
-//			getContentView().dispatchTouchEvent(motionEvent2);
-//		}
-//
-//	}
 	
 	protected boolean wantHideNavbarInFullscreen() {
 		return false;
@@ -568,11 +484,7 @@ public class BaseActivity extends Activity implements Settings {
 			int flags = 0;
 			if (getKeyBacklight() == 0)
 				flags |= SYSTEM_UI_FLAG_LOW_PROFILE;
-//			if (isFullscreen() && wantHideNavbarInFullscreen() && isSmartphone())
-//				flags |= SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 			setSystemUiVisibility(flags);
-//			if (isFullscreen() && DeviceInfo.getSDKLevel() >= DeviceInfo.ICE_CREAM_SANDWICH)
-//				simulateTouch();
 			return true;
 		}
 		return false;
@@ -580,20 +492,11 @@ public class BaseActivity extends Activity implements Settings {
 	
 
 	private int lastSystemUiVisibility = -1;
-	//private boolean systemUiVisibilityListenerIsSet = false;
 	@TargetApi(11)
 	@SuppressLint("NewApi")
 	private boolean setSystemUiVisibility(int value) {
 		if (DeviceInfo.getSDKLevel() >= DeviceInfo.HONEYCOMB) {
 			if (DeviceInfo.getSDKLevel() < 19) {
-//			if (!systemUiVisibilityListenerIsSet && contentView != null) {
-//				contentView.setOnSystemUiVisibilityChangeListener(new OnSystemUiVisibilityChangeListener() {
-//					@Override
-//					public void onSystemUiVisibilityChange(int visibility) {
-//						lastSystemUiVisibility = visibility;
-//					}
-//				});
-//			}
 			boolean a4 = DeviceInfo.getSDKLevel() >= DeviceInfo.ICE_CREAM_SANDWICH;
 			if (!a4)
 				value &= SYSTEM_UI_FLAG_LOW_PROFILE;
@@ -602,11 +505,7 @@ public class BaseActivity extends Activity implements Settings {
 			lastSystemUiVisibility = value;
 
 			View view;
-			//if (a4)
-				view = getWindow().getDecorView(); // getReaderView();
-			//else
-			//	view = mActivity.getContentView(); // getReaderView();
-			
+			view = getWindow().getDecorView(); // getReaderView();
 			if (view == null)
 				return false;
 			Method m;
@@ -678,7 +577,6 @@ public class BaseActivity extends Activity implements Settings {
 		}
     	// repeat again in short interval
     	if (!Engine.getInstance(this).setKeyBacklight(0)) {
-    		//log.w("Cannot control key backlight directly");
     		return;
     	}
     	// repeat again in short interval
@@ -687,13 +585,9 @@ public class BaseActivity extends Activity implements Settings {
 			public void run() {
 		    	if (!isStarted())
 		    		return;
-		    	if (!Engine.getInstance(BaseActivity.this).setKeyBacklight(0)) {
-		    		//log.w("Cannot control key backlight directly (delayed)");
-		    	}
 			}
 		};
 		BackgroundThread.instance().postGUI(task, 1);
-		//BackgroundThread.instance().postGUI(task, 10);
     }
     
     private void updateBacklightBrightness(float b) {
@@ -702,7 +596,6 @@ public class BaseActivity extends Activity implements Settings {
 	    	LayoutParams attrs =  wnd.getAttributes();
 	    	boolean changed = false;
 	    	if (b < 0 && b > -0.99999f) {
-	    		//log.d("dimming screen by " + (int)((1 + b)*100) + "%");
 	    		b = -b * attrs.screenBrightness;
 	    		if (b < 0.15)
 	    			return;
@@ -715,7 +608,6 @@ public class BaseActivity extends Activity implements Settings {
 	    		changed = true;
 	    	}
 	    	if ( changed ) {
-	    		log.d("Window attribute changed: " + attrs);
 	    		wnd.setAttributes(attrs);
 	    	}
         }
@@ -727,7 +619,6 @@ public class BaseActivity extends Activity implements Settings {
 	    	LayoutParams attrs =  wnd.getAttributes();
 	    	boolean changed = false;
 	    	// hack to set buttonBrightness field
-	    	//float buttonBrightness = keyBacklightOff ? 0.0f : -1.0f;
 	    	if (!brightnessHackError)
 	    	try {
 	        	Field bb = attrs.getClass().getField("buttonBrightness");
@@ -742,9 +633,7 @@ public class BaseActivity extends Activity implements Settings {
 	    		log.e("WindowManager.LayoutParams.buttonBrightness field is not found, cannot turn buttons backlight off");
 	    		brightnessHackError = true;
 	    	}
-	    	//attrs.buttonBrightness = 0;
 	    	if (changed) {
-	    		log.d("Window attribute changed: " + attrs);
 	    		wnd.setAttributes(attrs);
 	    	}
 	    	if (keyBacklightOff)
@@ -768,8 +657,6 @@ public class BaseActivity extends Activity implements Settings {
     {
     	if (backlightControl != null)
       	    backlightControl.onUserActivity();
-    	// Hack
-    	//if ( backlightControl.isHeld() )
     	BackgroundThread.instance().executeGUI(new Runnable() {
 			@Override
 			public void run() {
@@ -800,7 +687,6 @@ public class BaseActivity extends Activity implements Settings {
 		        		b = -1.0f; //BRIGHTNESS_OVERRIDE_NONE
 		        	}
 		        	setDimmingAlpha(dimmingAlpha);
-			    	//log.v("Brightness: " + b + ", dim: " + dimmingAlpha);
 			    	updateBacklightBrightness(b);
 			    	updateButtonsBrightness(keyBacklightOff ? 0.0f : -1.0f);
 				} catch ( Exception e ) {
@@ -855,21 +741,17 @@ public class BaseActivity extends Activity implements Settings {
 				PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 				wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
 				/* | PowerManager.ON_AFTER_RELEASE */, "cr3");
-				log.d("ScreenBacklightControl: WakeLock created");
 			}
 			if (!isStarted()) {
-				log.d("ScreenBacklightControl: user activity while not started");
 				release();
 				return;
 			}
 
 			if (!isHeld()) {
-				log.d("ScreenBacklightControl: acquiring WakeLock");
 				wl.acquire();
 			}
 
 			if (backlightTimerTask == null) {
-				log.v("ScreenBacklightControl: timer task started");
 				backlightTimerTask = new BacklightTimerTask();
 				BackgroundThread.instance().postGUI(backlightTimerTask,
 						screenBacklightDuration / 10);
@@ -882,7 +764,6 @@ public class BaseActivity extends Activity implements Settings {
 
 		public void release() {
 			if (wl != null && wl.isHeld()) {
-				log.d("ScreenBacklightControl: wl.release()");
 				wl.release();
 			}
 			backlightTimerTask = null;
@@ -896,8 +777,6 @@ public class BaseActivity extends Activity implements Settings {
 				if (backlightTimerTask == null)
 					return;
 				long interval = Utils.timeInterval(lastUserActivityTime);
-//				log.v("ScreenBacklightControl: timer task, lastActivityMillis = "
-//						+ interval);
 				int nextTimerInterval = screenBacklightDuration / 20;
 				boolean dim = false;
 				if (interval > screenBacklightDuration * 8 / 10) {
@@ -905,7 +784,6 @@ public class BaseActivity extends Activity implements Settings {
 					dim = true;
 				}
 				if (interval > screenBacklightDuration) {
-					log.v("ScreenBacklightControl: interval is expired");
 					release();
 				} else {
 					BackgroundThread.instance().postGUI(backlightTimerTask, nextTimerInterval);
@@ -933,12 +811,10 @@ public class BaseActivity extends Activity implements Settings {
 		return mScreenUpdateMode;
 	}
 	public void setScreenUpdateMode( int screenUpdateMode, View view ) {
-		//if (mReaderView != null) {
 			mScreenUpdateMode = screenUpdateMode;
 			if (EinkScreen.UpdateMode != screenUpdateMode || EinkScreen.UpdateMode == 2) {
 				EinkScreen.ResetController(screenUpdateMode, view);
 			}
-		//}
 	}
 
 	private int mScreenUpdateInterval = 0;
@@ -953,10 +829,6 @@ public class BaseActivity extends Activity implements Settings {
 		}
 	}
 
-
-	
-	
-	
 	public void showToast(int stringResourceId) {
 		showToast(stringResourceId, Toast.LENGTH_LONG);
 	}
@@ -972,7 +844,6 @@ public class BaseActivity extends Activity implements Settings {
 	}
 
 	public void showToast(String msg, int duration) {
-		log.v("showing toast: " + msg);
 		if (DeviceInfo.USE_CUSTOM_TOAST) {
 			ToastView.showToast(getContentView(), msg, Toast.LENGTH_LONG, settings().getInt(ReaderView.PROP_FONT_SIZE, 20));
 		} else {
@@ -982,7 +853,6 @@ public class BaseActivity extends Activity implements Settings {
 		}
 	}
 
-
 	protected View contentView;
 	public View getContentView() {
 		return contentView;
@@ -990,8 +860,6 @@ public class BaseActivity extends Activity implements Settings {
 	public void setContentView(View view) {
 		this.contentView = view;
 		super.setContentView(view);
-		//systemUiVisibilityListenerIsSet = false;
-		//updateBackground();
 		setCurrentTheme(currentTheme);
 	}
 	
@@ -1017,9 +885,6 @@ public class BaseActivity extends Activity implements Settings {
 		startActivity(intent);
 	}
 	
-
-	
-
 	private static String PREF_HELP_FILE = "HelpFile";
 	
 	public String getLastGeneratedHelpFileSignature()
@@ -1035,8 +900,6 @@ public class BaseActivity extends Activity implements Settings {
 		pref.edit().putString(PREF_HELP_FILE, v).commit();
 	}
 
-	
-	
 	private String currentLanguage;
 	
 	public String getCurrentLanguage() {
@@ -1049,7 +912,7 @@ public class BaseActivity extends Activity implements Settings {
 	
 	public void setLanguage(Lang lang) {
 		try {
-			Resources res = getResources();
+                    Resources res = getResources();
 		    // Change locale settings in the app.
 		    DisplayMetrics dm = res.getDisplayMetrics();
 		    android.content.res.Configuration conf = res.getConfiguration();
@@ -1148,9 +1011,7 @@ public class BaseActivity extends Activity implements Settings {
 		
 		final TextView myView = new TextView(getApplicationContext());
 		myView.setText(questionResourceId);
-		//myView.setTextSize(12);
 		dlg.setView(myView);
-		//dlg.setTitle(questionResourceId);
 		dlg.setPositiveButton(R.string.dlg_button_ok, new OnClickListener() {
 			public void onClick(DialogInterface arg0, int arg1) {
 				action.run();
@@ -1239,7 +1100,6 @@ public class BaseActivity extends Activity implements Settings {
 	public void setCurrentProfile(int profile) {
 		if (profile == 0 || profile == getCurrentProfile())
 			return;
-		log.i("Switching from profile " + currentProfile + " to " + profile);
 		mSettingsManager.saveSettings(currentProfile, null);
 		final Properties loadedSettings = mSettingsManager.loadSettings(profile);
 		mSettingsManager.setSettings(loadedSettings, 0, true);
@@ -1385,11 +1245,6 @@ public class BaseActivity extends Activity implements Settings {
 			new DefKeyAction(ReaderView.KEYCODE_ESCAPE, ReaderAction.NORMAL, ReaderAction.PAGE_DOWN),
 			new DefKeyAction(ReaderView.KEYCODE_ESCAPE, ReaderAction.LONG, ReaderAction.REPEAT),
 			
-//		    public static final int KEYCODE_PAGE_BOTTOMLEFT = 0x5d; // fwd
-//		    public static final int KEYCODE_PAGE_BOTTOMRIGHT = 0x5f; // fwd
-//		    public static final int KEYCODE_PAGE_TOPLEFT = 0x5c; // back
-//		    public static final int KEYCODE_PAGE_TOPRIGHT = 0x5e; // back
-			
 		};
 		private static DefTapAction[] DEF_TAP_ACTIONS = {
 			new DefTapAction(1, false, ReaderAction.PAGE_UP),
@@ -1471,7 +1326,6 @@ public class BaseActivity extends Activity implements Settings {
 	        	try {
 	        		FileInputStream is = new FileInputStream(file);
 	        		props.load(is);
-	        		log.v("" + props.size() + " settings items loaded from file " + propsFile.getAbsolutePath() );
 	        	} catch ( Exception e ) {
 	        		log.e("error while reading settings");
 	        	}
@@ -1493,7 +1347,7 @@ public class BaseActivity extends Activity implements Settings {
 	        		menuTapActionFound = true;
 	        }
 
-          // default tap zone actions
+                // default tap zone actions
 	        for ( DefTapAction ka : DEF_TAP_ACTIONS ) {
 	        	String paramName = ka.longPress ? ReaderView.PROP_APP_TAP_ZONE_ACTIONS_TAP + ".long." + ka.zone : ReaderView.PROP_APP_TAP_ZONE_ACTIONS_TAP + "." + ka.zone;
 	        	
@@ -1585,36 +1439,36 @@ public class BaseActivity extends Activity implements Settings {
 	        props.applyDefault(ReaderView.PROP_APP_FULLSCREEN, "0");
 	        props.applyDefault(ReaderView.PROP_APP_VIEW_AUTOSCROLL_SPEED, "1500");
 	        props.applyDefault(ReaderView.PROP_APP_SCREEN_BACKLIGHT, "-1");
-			props.applyDefault(ReaderView.PROP_SHOW_BATTERY, "1"); 
-			props.applyDefault(ReaderView.PROP_SHOW_POS_PERCENT, "0"); 
-			props.applyDefault(ReaderView.PROP_SHOW_PAGE_COUNT, "1"); 
-			props.applyDefault(ReaderView.PROP_SHOW_TIME, "1");
-			props.applyDefault(ReaderView.PROP_FONT_ANTIALIASING, "2");
-			props.applyDefault(ReaderView.PROP_APP_GESTURE_PAGE_FLIPPING, "1");
-			props.applyDefault(ReaderView.PROP_APP_SHOW_COVERPAGES, "1");
-			props.applyDefault(ReaderView.PROP_APP_COVERPAGE_SIZE, "1");
-			props.applyDefault(ReaderView.PROP_APP_SCREEN_ORIENTATION, DeviceInfo.EINK_SCREEN ? "0" : "4"); // "0"
-			props.applyDefault(ReaderView.PROP_CONTROLS_ENABLE_VOLUME_KEYS, "1");
-			props.applyDefault(ReaderView.PROP_APP_TAP_ZONE_HILIGHT, "0");
-			props.applyDefault(ReaderView.PROP_APP_BOOK_SORT_ORDER, FileInfo.DEF_SORT_ORDER.name());
-			props.applyDefault(ReaderView.PROP_APP_DICTIONARY, Dictionaries.DEFAULT_DICTIONARY_ID);
-			props.applyDefault(ReaderView.PROP_APP_FILE_BROWSER_HIDE_EMPTY_FOLDERS, "0");
-			props.applyDefault(ReaderView.PROP_APP_SELECTION_ACTION, "0");
-			props.applyDefault(ReaderView.PROP_APP_MULTI_SELECTION_ACTION, "0");
+                props.applyDefault(ReaderView.PROP_SHOW_BATTERY, "1"); 
+                props.applyDefault(ReaderView.PROP_SHOW_POS_PERCENT, "0"); 
+                props.applyDefault(ReaderView.PROP_SHOW_PAGE_COUNT, "1"); 
+                props.applyDefault(ReaderView.PROP_SHOW_TIME, "1");
+                props.applyDefault(ReaderView.PROP_FONT_ANTIALIASING, "2");
+                props.applyDefault(ReaderView.PROP_APP_GESTURE_PAGE_FLIPPING, "1");
+                props.applyDefault(ReaderView.PROP_APP_SHOW_COVERPAGES, "1");
+                props.applyDefault(ReaderView.PROP_APP_COVERPAGE_SIZE, "1");
+                props.applyDefault(ReaderView.PROP_APP_SCREEN_ORIENTATION, DeviceInfo.EINK_SCREEN ? "0" : "4"); // "0"
+                props.applyDefault(ReaderView.PROP_CONTROLS_ENABLE_VOLUME_KEYS, "1");
+                props.applyDefault(ReaderView.PROP_APP_TAP_ZONE_HILIGHT, "0");
+                props.applyDefault(ReaderView.PROP_APP_BOOK_SORT_ORDER, FileInfo.DEF_SORT_ORDER.name());
+                props.applyDefault(ReaderView.PROP_APP_DICTIONARY, Dictionaries.DEFAULT_DICTIONARY_ID);
+                props.applyDefault(ReaderView.PROP_APP_FILE_BROWSER_HIDE_EMPTY_FOLDERS, "0");
+                props.applyDefault(ReaderView.PROP_APP_SELECTION_ACTION, "0");
+                props.applyDefault(ReaderView.PROP_APP_MULTI_SELECTION_ACTION, "0");
 
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_BLOCK_MODE, "1");
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_BLOCK_MODE, "1");
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_INLINE_MODE, "1");
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_INLINE_MODE, "1");
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_BLOCK_SCALE, "0");
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_BLOCK_SCALE, "0");
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_INLINE_SCALE, "0");
-			props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_INLINE_SCALE, "0");
-			
-			props.applyDefault(ReaderView.PROP_PAGE_MARGIN_LEFT, hmargin);
-			props.applyDefault(ReaderView.PROP_PAGE_MARGIN_RIGHT, hmargin);
-			props.applyDefault(ReaderView.PROP_PAGE_MARGIN_TOP, vmargin);
-			props.applyDefault(ReaderView.PROP_PAGE_MARGIN_BOTTOM, vmargin);
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_BLOCK_MODE, "1");
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_BLOCK_MODE, "1");
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_INLINE_MODE, "1");
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_INLINE_MODE, "1");
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_BLOCK_SCALE, "0");
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_BLOCK_SCALE, "0");
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMOUT_INLINE_SCALE, "0");
+                props.applyDefault(ReaderView.PROP_IMG_SCALING_ZOOMIN_INLINE_SCALE, "0");
+                
+                props.applyDefault(ReaderView.PROP_PAGE_MARGIN_LEFT, hmargin);
+                props.applyDefault(ReaderView.PROP_PAGE_MARGIN_RIGHT, hmargin);
+                props.applyDefault(ReaderView.PROP_PAGE_MARGIN_TOP, vmargin);
+                props.applyDefault(ReaderView.PROP_PAGE_MARGIN_BOTTOM, vmargin);
 			
 	        props.applyDefault(ReaderView.PROP_APP_SCREEN_UPDATE_MODE, "0");
 	        props.applyDefault(ReaderView.PROP_APP_SCREEN_UPDATE_INTERVAL, "10");
@@ -1692,7 +1546,6 @@ public class BaseActivity extends Activity implements Settings {
 				propsFile = new File(propsDir, SETTINGS_FILE_NAME);
 				File dataDir = Engine.getExternalSettingsDir();
 				if (dataDir != null) {
-					log.d("external settings dir: " + dataDir);
 					propsFile = Engine.checkOrMoveFile(dataDir, propsDir, SETTINGS_FILE_NAME);
 				} else {
 					propsDir.mkdirs();
@@ -1759,10 +1612,8 @@ public class BaseActivity extends Activity implements Settings {
 		public void saveSettings(File f, Properties settings)
 		{
 			try {
-				log.v("saveSettings()");
 	    		FileOutputStream os = new FileOutputStream(f);
 	    		settings.store(os, "Cool Reader 3 settings");
-				log.i("Settings successfully saved to file " + f.getAbsolutePath());
 			} catch ( Exception e ) {
 				log.e("exception while saving settings", e);
 			}
@@ -1819,7 +1670,6 @@ public class BaseActivity extends Activity implements Settings {
 		if (hasHardwareMenuKey == null) {
 			ViewConfiguration vc = ViewConfiguration.get(this);
 			if (DeviceInfo.getSDKLevel() >= 14) {
-				//boolean vc.hasPermanentMenuKey();
 				try {
 					Method m = vc.getClass().getMethod("hasPermanentMenuKey", new Class<?>[] {});
 					try {

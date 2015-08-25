@@ -26,16 +26,12 @@ public class L {
 		Log.e(TAG, getThreadLabel() + msg, e);
 	}
 	public static void d(String msg) {
-		Log.d(TAG, getThreadLabel() + msg);
 	}
 	public static void d(String msg, Exception e) {
-		Log.d(TAG, getThreadLabel() + msg, e);
 	}
 	public static void v(String msg) {
-		Log.v(TAG, getThreadLabel() + msg);
 	}
 	public static void v(String msg, Exception e) {
-		Log.v(TAG, getThreadLabel() + msg, e);
 	}
 	public static Logger create(String name) {
 		return new LoggerImpl(name, Log.VERBOSE);

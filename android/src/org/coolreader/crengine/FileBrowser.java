@@ -52,13 +52,9 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 				@Override
 				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 						int position, long id) {
-					log.d("onItemLongClick("+position+")");
-					//return super.performItemClick(view, position, id);
 					FileInfo item = (FileInfo) getAdapter().getItem(position);
 					if ( item==null )
 						return false;
-					//openContextMenu(_this);
-					//mActivity.loadDocument(item);
 					selectedItem = item;
 					
 					boolean bookInfoDialogEnabled = true; // TODO: it's for debug
@@ -76,7 +72,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 		
 		@Override
 		public void createContextMenu(ContextMenu menu) {
-			log.d("createContextMenu()");
 			menu.clear();
 		    MenuInflater inflater = mActivity.getMenuInflater();
 		    if ( isRecentDir() ) {
@@ -114,8 +109,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 
 		@Override
 		public boolean performItemClick(View view, int position, long id) {
-			log.d("performItemClick("+position+")");
-			//return super.performItemClick(view, position, id);
 			FileInfo item = (FileInfo) getAdapter().getItem(position);
 			if ( item==null )
 				return false;
@@ -134,15 +127,9 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 
 		@Override
 		public boolean onKeyDown(int keyCode, KeyEvent event) {
-			//log.d("FileBrowser.ListView.onKeyDown(" + keyCode + ")");
 			if (keyCode == KeyEvent.KEYCODE_BACK) {
 				if ( isRootDir() ) {
 					mActivity.showRootWindow();
-//					if (mActivity.isBookOpened()) {
-//						mActivity.showReader();
-//						return true;
-//					} else
-//						return super.onKeyDown(keyCode, event);
 				}
 				showParentDirectory();
 				return true;
@@ -258,7 +245,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 			
 		switch (item.getItemId()) {
 		case R.id.book_open:
-			log.d("book_open menu item selected");
 			if ( selectedItem.isOPDSDir() )
 				showOPDSDir(selectedItem, null);
 			else
@@ -283,39 +269,30 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 				mActivity.showToast("No book opened");
 			return true;
 		case R.id.book_delete:
-			log.d("book_delete menu item selected");
 			mActivity.askDeleteBook(selectedItem);
 			return true;
 		case R.id.book_recent_goto:
-			log.d("book_recent_goto menu item selected");
 			showDirectory(selectedItem, selectedItem);
 			return true;
 		case R.id.book_recent_remove:
-			log.d("book_recent_remove menu item selected");
 			mActivity.askDeleteRecent(selectedItem);
 			return true;
 		case R.id.catalog_add:
-			log.d("catalog_add menu item selected");
 			mActivity.editOPDSCatalog(null);
 			return true;
 		case R.id.catalog_delete:
-			log.d("catalog_delete menu item selected");
 			mActivity.askDeleteCatalog(selectedItem);
 			return true;
 		case R.id.catalog_edit:
-			log.d("catalog_edit menu item selected");
 			mActivity.editOPDSCatalog(selectedItem);
 			return true;
 		case R.id.catalog_open:
-			log.d("catalog_open menu item selected");
 			showOPDSDir(selectedItem, null);
 			return true;
         case R.id.folder_open:
-            log.d("folder_open menu item selected");
             showDirectory(selectedItem, null);
             return true;
         case R.id.folder_to_favorites:
-            log.d("folder_to_favorites menu item selected");
             addToFavorites(selectedItem);
             return true;
 		}
@@ -365,10 +342,8 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 	{
 		if ( mInitStarted )
 			return;
-		log.e("FileBrowser.init() called");
 		mInitStarted = true;
 		
-		//showDirectory( mScanner.mRoot, null );
 		mListView.setSelection(0);
 	}
 	
@@ -430,7 +405,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 
 	public void showRootDirectory()
 	{
-		log.v("showRootDirectory()");
 		showDirectory(mScanner.getRoot(), null);
 	}
 
@@ -466,7 +440,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 
 	public void showOnlineStoreDirectory(final FileInfo dir)
 	{
-		log.v("showOnlineStoreDirectory(" + dir.pathname + ")");
 		final OnlineStoreWrapper plugin = getPlugin(dir);
 		if (plugin != null) {
 			if (dir.fileCount() > 0 || dir.dirCount() > 0) {
@@ -506,7 +479,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 
 	public void showOPDSRootDirectory()
 	{
-		log.v("showOPDSRootDirectory()");
 		final FileInfo opdsRoot = mScanner.getOPDSRoot();
 		if (opdsRoot != null) {
 			mActivity.getDB().loadOPDSCatalogs(new CRDBService.OPDSCatalogsLoadingCallback() {
@@ -569,7 +541,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 			public void run() {
 				final String newValue = properties.getProperty(ReaderView.PROP_APP_BOOK_SORT_ORDER);
 				if ( newValue!=null && oldValue!=null && !newValue.equals(oldValue) ) {
-					log.d("New sort order: " + newValue);
 					setSortOrder(newValue);
 				}
 			}
@@ -607,9 +578,7 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 
 					private boolean processNewEntries(DocInfo doc,
 							Collection<EntryInfo> entries, boolean notifyNoEntries) {
-						log.d("OPDS: processNewEntries: " + entries.size() + (notifyNoEntries ? " - done":" - to continue"));
 						if (myCurrDirectory != currDirectory && currDirectory != fileOrDir) {
-							log.w("current directory has been changed: ignore downloaded items");
 							return false;
 						}
 						ArrayList<FileInfo> items = new ArrayList<FileInfo>();
@@ -675,11 +644,7 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 					FileInfo downloadDir;
 					@Override
 					public File onDownloadStart(String type, String url) {
-						//mEngine.showProgress(0, "Downloading " + url);
-						//mActivity.showToast("Starting download of " + type + " from " + url);
-						log.d("onDownloadStart: called for " + type + " " + url );
 						downloadDir = Services.getScanner().getDownloadDirectory();
-						log.d("onDownloadStart: after getDownloadDirectory()" );
 						String subdir = null;
 						if ( fileOrDir.authors!=null ) {
 							subdir = Utils.transcribeFileName(fileOrDir.authors);
@@ -694,7 +659,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 						result = new File(result, subdir);
 						result.mkdirs();
 						downloadDir.findItemByPathName(result.getAbsolutePath());
-						log.d("onDownloadStart: returning " + result.getAbsolutePath() );
 						return result;
 					}
 
@@ -826,49 +790,40 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 			}
 			if (fileOrDir.isBooksByAuthorRoot()) {
 				// refresh authors list
-				log.d("Updating authors list");
 				mActivity.getDB().loadAuthorsList(fileOrDir, new ItemGroupsLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksBySeriesRoot()) {
 				// refresh authors list
-				log.d("Updating series list");
 				mActivity.getDB().loadSeriesList(fileOrDir, new ItemGroupsLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksByRatingRoot()) {
-				log.d("Updating rated books list");
 				mActivity.getDB().loadBooksByRating(1, 10, new FileInfoLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksByStateFinishedRoot()) {
-				log.d("Updating books by state=finished");
 				mActivity.getDB().loadBooksByState(FileInfo.STATE_FINISHED, new FileInfoLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksByStateReadingRoot()) {
-				log.d("Updating books by state=reading");
 				mActivity.getDB().loadBooksByState(FileInfo.STATE_READING, new FileInfoLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksByStateToReadRoot()) {
-				log.d("Updating books by state=toRead");
 				mActivity.getDB().loadBooksByState(FileInfo.STATE_TO_READ, new FileInfoLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksByTitleRoot()) {
 				// refresh authors list
-				log.d("Updating title list");
 				mActivity.getDB().loadTitleList(fileOrDir, new ItemGroupsLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksByAuthorDir()) {
-				log.d("Updating author book list");
 				mActivity.getDB().loadAuthorBooks(fileOrDir.getAuthorId(), new FileInfoLoadingCallback(fileOrDir));
 				return;
 			}
 			if (fileOrDir.isBooksBySeriesDir()) {
-				log.d("Updating series book list");
 				mActivity.getDB().loadSeriesBooks(fileOrDir.getSeriesId(), new FileInfoLoadingCallback(fileOrDir));
 				return;
 			}
@@ -903,7 +858,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 	public void scanCurrentDirectoryRecursive() {
 		if (currDirectory == null)
 			return;
-		log.i("scanCurrentDirectoryRecursive started");
 		final Scanner.ScanControl control = new Scanner.ScanControl(); 
 		final ProgressDialog dlg = ProgressDialog.show(mActivity, 
 				mActivity.getString(R.string.dlg_scan_title), 
@@ -911,14 +865,12 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 				true, true, new OnCancelListener() {
 					@Override
 					public void onCancel(DialogInterface dialog) {
-						log.i("scanCurrentDirectoryRecursive : stop handler");
 						control.stop();
 					}
 		});
 		mScanner.scanDirectory(mActivity.getDB(), currDirectory, new Runnable() {
 			@Override
 			public void run() {
-				log.i("scanCurrentDirectoryRecursive : finish handler");
 				if ( dlg.isShowing() )
 					dlg.dismiss();
 			}
@@ -1148,16 +1100,11 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 						setText( name, title );
 						setText( series, seriesName );
 
-//						field1.setVisibility(VISIBLE);
-//						field2.setVisibility(VISIBLE);
-//						field3.setVisibility(VISIBLE);
 						String state = Utils.formatReadingState(mActivity, item);
 						if (field1 != null)
 							field1.setText(onlineBookInfo + "  " + state + " " + Utils.formatFileInfo(mActivity, item));
-						//field2.setText(formatDate(pos!=null ? pos.getTimeStamp() : item.createTime));
 						if (field2 != null)
 							field2.setText(Utils.formatLastPosition(mActivity, mHistory.getLastPos(item)));
-						//field3.setText(pos!=null ? formatPercent(pos.getPercent()) : null);
 					} 
 					
 				}
@@ -1261,7 +1208,6 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 		setCurrDirectory(dir);
 		
 		if (dir!=null && dir != currDirectory) {
-			log.i("Showing directory " + dir + " " + Thread.currentThread().getName());
 			if (dir.isRecentDir())
 				mActivity.setLastLocation(dir.getPathName());
 			else if (!dir.isSpecialDir())
@@ -1313,11 +1259,9 @@ public class FileBrowser extends LinearLayout implements FileInfoChangeListener 
 				vel = -vel;
 			if (vel > thresholdVelocity && adist > thresholdDistance && adist > aydist * 2) {
 				if (dist > 0) {
-					log.d("LTR fling detected: moving to parent");
 					showParentDirectory();
 					return true;
 				} else {
-					log.d("RTL fling detected: show menu");
 					mActivity.openOptionsMenu();
 					return true;
 				}

@@ -96,16 +96,6 @@ public class BookSearchDialog extends BaseDialog {
 		public void done( FileInfo[] results );
 	}
 
-//	private static String addWildcard( String s, boolean before, boolean after ) {
-//		if ( s==null || s.length()==0 )
-//			return s;
-//		if ( before )
-//			s = "%" + s;
-//		if ( after )
-//			s = s + "%";
-//		return s;
-//	}
-	
 	private final static int MAX_RESULTS = 50; 
 	protected void find( final SearchCallback cb ) {
 		final String author = authorEdit.getText().toString().trim();

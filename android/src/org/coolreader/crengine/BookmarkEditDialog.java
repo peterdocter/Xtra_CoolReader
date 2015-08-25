@@ -28,10 +28,7 @@ public class BookmarkEditDialog extends BaseDialog {
 		mReaderView = readerView;
 		mIsNew = isNew;
 		mOriginalBookmark = bookmark;
-		//if ( !isNew )
-			mBookmark = new Bookmark(bookmark);
-		//else
-		//	mBookmark = bookmark;
+		mBookmark = new Bookmark(bookmark);
 		if (!isNew) {
 			setThirdButtonImage(R.drawable.cr3_button_remove, R.string.mi_bookmark_delete);
 		}

@@ -24,9 +24,6 @@ import android.widget.TextView;
 
 public class CRToolBar extends ViewGroup {
 
-
-	private static final Logger log = L.create("tb");
-	
 	final private BaseActivity activity;
 	private ArrayList<ReaderAction> actions = new ArrayList<ReaderAction>();
 	private ArrayList<ReaderAction> iconActions = new ArrayList<ReaderAction>();
@@ -68,10 +65,8 @@ public class CRToolBar extends ViewGroup {
 	public void setVertical(boolean vertical) {
 		this.isVertical = vertical;
 		if (isVertical) {
-			//setPadding(BUTTON_SPACING, BUTTON_SPACING, BAR_SPACING, BUTTON_SPACING);
 			setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
 		} else {
-			//setPadding(BUTTON_SPACING, BAR_SPACING, BUTTON_SPACING, BUTTON_SPACING);
 			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		}
 	}
@@ -116,11 +111,10 @@ public class CRToolBar extends ViewGroup {
 			BAR_SPACING = 0; //preferredItemHeight / 20;
 		}
 		calcLayout();
-		L.d("CRToolBar preferredItemHeight=" + preferredItemHeight + " buttonWidth=" + buttonWidth + " buttonHeight=" + buttonHeight + " buttonSpacing=" + BUTTON_SPACING);
 	}
 	
 	private void calcLayout() {
-		int sz = preferredItemHeight; //(activity.isSmartphone() ? preferredItemHeight * 6 / 10 - BUTTON_SPACING : preferredItemHeight);
+		int sz = preferredItemHeight;
 		buttonWidth = buttonHeight = sz - BUTTON_SPACING;
 		if (isMultiline)
 			buttonHeight = sz / 2;
@@ -202,19 +196,8 @@ public class CRToolBar extends ViewGroup {
 						activity.showActionsPopupMenu(itemsOverflow, onActionHandler);
 				}
 			}
-//			PopupMenu menu = new PopupMenu(activity, this);
-//			int order = 0;
-//			for (ReaderAction action : itemsOverflow) {
-//				menu.getMenu().add(0, action.menuItemId, order++, action.nameId);
-//			}
-//			menu.show();
-//			showContextMenuForChild(overflowButton);
 		}
 	}
-	
-//	private void onMoreButtonClick() {
-//		showOverflowMenu();
-//	}
 	
 	private void onButtonClick(ReaderAction item) {
 		if (onActionHandler != null)
@@ -278,7 +261,6 @@ public class CRToolBar extends ViewGroup {
 		right -= left;
 		bottom -= top;
 		left = top = 0;
-		//calcLayout();
 		removeAllViews();
 		overflowButton = null;
 		
@@ -298,11 +280,6 @@ public class CRToolBar extends ViewGroup {
 	    		separator.layout(left, top, right, top + windowDividerHeight);
 	    		y0 = windowDividerHeight + 4;
         	}
-        	
-        	
-//        	ScrollView scroll = new ScrollView(activity);
-//        	scroll.setLayoutParams(new LayoutParams(right, bottom));
-//        	AbsoluteLayout content = new AbsoluteLayout(activity);
         	
         	layoutRect.set(left + getPaddingLeft() + BUTTON_SPACING, top + getPaddingTop() + BUTTON_SPACING, right - getPaddingRight() - BUTTON_SPACING, bottom - getPaddingBottom() - BUTTON_SPACING - y0);
     		int lineH = itemHeight; //rect.height() / lineCount;
@@ -327,12 +304,9 @@ public class CRToolBar extends ViewGroup {
         			final ReaderAction action = (visibleNonButtonCount > 0 && i + startBtn == iconActions.size()) || (lineCount > maxLines && currentLine == maxLines - 1 && i == currentLineButtons - 1) ? null : iconActions.get(startBtn + i);
         			if (action != null)
         				lastButtonIndex = startBtn + i;
-        			log.v("item=" + layoutItemRect);
         			LinearLayout item = inflateItem(action);
-        			//item.setLayoutParams(new LinearLayout.LayoutParams(itemRect.width(), itemRect.height()));
         			item.measure(MeasureSpec.makeMeasureSpec(layoutItemRect.width(), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(layoutItemRect.height(), MeasureSpec.EXACTLY));
         			item.layout(layoutItemRect.left, layoutItemRect.top, layoutItemRect.right, layoutItemRect.bottom);
-        			//item.forceLayout();
         			addView(item);
         			item.setOnClickListener(new OnClickListener() {
 						@Override
@@ -344,7 +318,6 @@ public class CRToolBar extends ViewGroup {
 						}
 					});
         		}
-//        		addView(scroll);
         	}
         	if (popupLocation != Settings.VIEWER_TOOLBAR_BOTTOM) {
 	    		View separator = new View(activity);
@@ -358,16 +331,6 @@ public class CRToolBar extends ViewGroup {
     				itemsOverflow.add(actions.get(i));
         	return;
 		}
-
-//		View divider = new View(getContext());
-//		addView(divider);
-//		if (isVertical()) {
-//			divider.setBackgroundResource(R.drawable.divider_light_vertical_tiled);
-//			divider.layout(right - 8, top, right, bottom);
-//		} else {
-//			divider.setBackgroundResource(R.drawable.divider_light_tiled);
-//			divider.layout(left, bottom - 8, right, bottom);
-//		}
 
 		visibleButtonCount = 0;
 		for (int i=0; i<actions.size(); i++) {
@@ -415,17 +378,6 @@ public class CRToolBar extends ViewGroup {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-//        if (widthMode != MeasureSpec.EXACTLY) {
-//            throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
-//                    "with android:layout_width=\"match_parent\" (or fill_parent)");
-//        }
-        
-//        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-//        if (heightMode != MeasureSpec.AT_MOST) {
-//            throw new IllegalStateException(getClass().getSimpleName() + " can only be used " +
-//                    "with android:layout_height=\"wrap_content\"");
-//        }
 
         if (isVertical) {
 	        int contentHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -439,8 +391,6 @@ public class CRToolBar extends ViewGroup {
 	        	if (lineCount > maxMultilineLines)
 	        		lineCount = maxMultilineLines;
 	        	int h = lineCount * itemHeight + BAR_SPACING + BAR_SPACING + windowDividerHeight + 4;
-//	        	if (h > contentHeight - itemHeight)
-//	        		h = contentHeight - itemHeight;
 	        	setMeasuredDimension(contentWidth, h);
 	        } else {
 	        	setMeasuredDimension(contentWidth, buttonHeight + BUTTON_SPACING * 2 + BAR_SPACING);
@@ -468,14 +418,10 @@ public class CRToolBar extends ViewGroup {
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
-		log.v("CRToolBar.onSizeChanged(" + w + ", " + h + ")");
 	}
 	
-	
-
 	@Override
 	protected void onDraw(Canvas canvas) {
-		log.v("CRToolBar.onDraw(" + getWidth() + ", " + getHeight() + ")");
 		super.onDraw(canvas);
 	}
 	public PopupWindow showAsPopup(View anchor, OnActionHandler onActionHandler, OnOverflowHandler onOverflowHandler) {
@@ -558,7 +504,6 @@ public class CRToolBar extends ViewGroup {
 				return false;
 			}
 		});
-		//popup.setBackgroundDrawable(new BitmapDrawable());
 		popup.setWidth(WindowManager.LayoutParams.FILL_PARENT);
 		int hh = h;
 		int maxh = anchor.getHeight();
@@ -599,8 +544,6 @@ public class CRToolBar extends ViewGroup {
 	}
 	
 	public void onThemeChanged(InterfaceTheme theme) {
-		//buttonAlpha = theme.getToolbarButtonAlpha();
-		//textColor = theme.getStatusTextColor();
 		if (isShown()) {
 			requestLayout();
 			invalidate();

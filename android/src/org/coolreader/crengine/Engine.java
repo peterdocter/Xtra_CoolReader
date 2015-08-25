@@ -32,17 +32,11 @@ public class Engine {
 
 	public static final Logger log = L.create("en");
 	public static final Object lock = new Object();
-
 	
 	static final private String LIBRARY_NAME = "cr3engine-3-1-1";
 
 	private BaseActivity mActivity;
 	
-	
-	// private final View mMainView;
-	// private final ExecutorService mExecutor =
-	// Executors.newFixedThreadPool(1);
-
 	/**
 	 * Get storage root directories.
 	 * 
@@ -139,42 +133,14 @@ public class Engine {
 
 		public void run() {
 			try {
-				if (LOG_ENGINE_TASKS)
-					log.i("running task.work() "
-							+ task.getClass().getName());
 				// run task
 				task.work();
-				if (LOG_ENGINE_TASKS)
-					log.i("exited task.work() "
-							+ task.getClass().getName());
 				// post success callback
 				BackgroundThread.instance().postGUI(new Runnable() {
 					public void run() {
-						if (LOG_ENGINE_TASKS)
-							log.i("running task.done() "
-									+ task.getClass().getName()
-									+ " in gui thread");
 						task.done();
 					}
 				});
-				// } catch ( final FatalError e ) {
-				// TODO:
-				// Handler h = view.getHandler();
-				//
-				// if ( h==null ) {
-				// View root = view.getRootView();
-				// h = root.getHandler();
-				// }
-				// if ( h==null ) {
-				// //
-				// e.handle();
-				// } else {
-				// h.postAtFrontOfQueue(new Runnable() {
-				// public void run() {
-				// e.handle();
-				// }
-				// });
-				// }
 			} catch (final Exception e) {
 				log.e("exception while running task "
 						+ task.getClass().getName(), e);
@@ -198,8 +164,6 @@ public class Engine {
 	 *            is task to execute
 	 */
 	public void execute(final EngineTask task) {
-		if (LOG_ENGINE_TASKS)
-			log.d("executing task " + task.getClass().getSimpleName());
 		TaskHandler taskHandler = new TaskHandler(task);
 		BackgroundThread.instance().executeBackground(taskHandler);
 	}
@@ -211,8 +175,6 @@ public class Engine {
 	 *            is task to execute
 	 */
 	public void post(final EngineTask task) {
-		if (LOG_ENGINE_TASKS)
-			log.d("executing task " + task.getClass().getSimpleName());
 		TaskHandler taskHandler = new TaskHandler(task);
 		BackgroundThread.instance().postBackground(taskHandler);
 	}
@@ -258,23 +220,6 @@ public class Engine {
 	private static int PROGRESS_STYLE = ProgressDialog.STYLE_HORIZONTAL;
 	private Drawable progressIcon = null;
 
-	// public void setProgressDrawable( final BitmapDrawable drawable )
-	// {
-	// if ( enable_progress ) {
-	// mBackgroundThread.executeGUI( new Runnable() {
-	// public void run() {
-	// // show progress
-	// log.v("showProgress() - in GUI thread");
-	// if ( mProgress!=null && progressShown ) {
-	// hideProgress();
-	// progressIcon = drawable;
-	// showProgress(mProgressPos, mProgressMessage);
-	// //mProgress.setIcon(drawable);
-	// }
-	// }
-	// });
-	// }
-	// }
 	public void showProgress(final int mainProgress, final int resourceId) {
 		showProgress(mainProgress,
 				mActivity.getResources().getString(resourceId));
@@ -349,23 +294,17 @@ public class Engine {
 		mProgressMessage = msg;
 		mProgressPos = mainProgress;
 		if (mainProgress == 10000) {
-			//log.v("mainProgress==10000 : calling hideProgress");
 			hideProgress();
 			return;
 		}
-		log.v("showProgress(" + mainProgress + ", \"" + msg
-				+ "\") is called : " + Thread.currentThread().getName());
 		if (enable_progress) {
 			BackgroundThread.instance().executeGUI(new Runnable() {
 				public void run() {
 					// show progress
-					//log.v("showProgress() - in GUI thread");
 					if (progressId != nextProgressId) {
-						//log.v("showProgress() - skipping duplicate progress event");
 						return;
 					}
 					if (mProgress == null) {
-						//log.v("showProgress() - creating progress window");
 						try {
 							if (mActivity != null && mActivity.isStarted()) {
 								mProgress = new ProgressDialog(mActivity);
@@ -388,9 +327,6 @@ public class Engine {
 								progressShown = true;
 							}
 						} catch (Exception e) {
-							Log.e("cr3",
-									"Exception while trying to show progress dialog",
-									e);
 							progressShown = false;
 							mProgress = null;
 						}
@@ -413,27 +349,18 @@ public class Engine {
 	 */
 	public void hideProgress() {
 		final int progressId = ++nextProgressId;
-		log.v("hideProgress() - is called : "
-				+ Thread.currentThread().getName());
-		// log.v("hideProgress() is called");
 		BackgroundThread.instance().executeGUI(new Runnable() {
 			public void run() {
 				// hide progress
-//				log.v("hideProgress() - in GUI thread");
 				if (progressId != nextProgressId) {
-//					Log.v("cr3",
-//							"hideProgress() - skipping duplicate progress event");
 					return;
 				}
 				if (mProgress != null) {
-					// if ( mProgress.isShowing() )
-					// mProgress.hide();
 					progressShown = false;
 					progressIcon = null;
 					if (mProgress.isShowing())
 						mProgress.dismiss();
 					mProgress = null;
-//					log.v("hideProgress() - in GUI thread, finished");
 				}
 			}
 		});
@@ -448,7 +375,6 @@ public class Engine {
 			InputStream is = new FileInputStream(file);
 			return loadResourceUtf8(is);
 		} catch (Exception e) {
-			log.w("cannot load resource from file " + file);
 			return null;
 		}
 	}
@@ -646,7 +572,6 @@ public class Engine {
 		}
 
 		private static void add(HyphDict dict) {
-			// Arrays.copyOf(values, values.length+1); -- absent until API level 9
 			HyphDict[] list = new HyphDict[values.length+1];
 			for (int i=0; i<values.length; i++)
 				list[i] = values[i];
@@ -736,7 +661,6 @@ public class Engine {
 
 	public boolean setHyphenationLanguage(final String wanted_language) {
 		String language = getLanguage(wanted_language);
-		log.i("setHyphenationLanguage( " + language + " ) is called");
 		if (language == currentHyphLanguage || currentHyphDict != HyphDict.BOOK_LANGUAGE)
 			return false;
 		currentHyphLanguage = language;
@@ -747,7 +671,6 @@ public class Engine {
 		} else {
 			HyphDict.BOOK_LANGUAGE.language = "";
 		}
-		log.i("setHyphenationLanguage( " + language + " ) set to " + dict);
 		return true;
 	}
 
@@ -762,7 +685,6 @@ public class Engine {
 	}
 		
 	public boolean setHyphenationDictionary(final HyphDict dict) {
-		log.i("setHyphenationDictionary( " + dict + " ) is called");
 		if (currentHyphDict == dict)
 			return false;
 		currentHyphDict = dict;
@@ -782,7 +704,6 @@ public class Engine {
 						data = loadResourceBytes(dict.file);
 					}
 				}
-				log.i("Setting engine's hyphenation dictionary to " + dict);
 				setHyphenationMethod(dict.type, data);
 			}
 		});
@@ -790,20 +711,14 @@ public class Engine {
 
 	public boolean scanBookProperties(FileInfo info) {
 		synchronized(lock) {
-			long start = android.os.SystemClock.uptimeMillis();
 			boolean res = scanBookPropertiesInternal(info);
-			long duration = android.os.SystemClock.uptimeMillis() - start;
-			L.v("scanBookProperties took " + duration + " ms for " + info.getPathName());
 			return res;
 		}
 	}
 
 	public byte[] scanBookCover(String path) {
 		synchronized(lock) {
-			long start = Utils.timeStamp();
 			byte[] res = scanBookCoverInternal(path);
-			long duration = Utils.timeInterval(start);
-			L.v("scanBookCover took " + duration + " ms for " + path);
 			return res;
 		}
 	}
@@ -823,10 +738,7 @@ public class Engine {
 	 */
 	public void drawBookCover(Bitmap bmp, byte[] data, String fontFace, String title, String authors, String seriesName, int seriesNumber, int bpp) {
 		synchronized(lock) {
-			long start = Utils.timeStamp();
 			drawBookCoverInternal(bmp, data, fontFace, title, authors, seriesName, seriesNumber, bpp);
-			long duration = Utils.timeInterval(start);
-			L.v("drawBookCover took " + duration + " ms");
 		}
 	}
 
@@ -865,11 +777,7 @@ public class Engine {
 						}
 					}
 				}
-			} else {
-				log.i(baseDir.toString() + " is read only");
 			}
-		} else {
-			log.i(baseDir.toString() + " is not found");
 		}
 		return cacheDirName;
 	}
@@ -884,7 +792,6 @@ public class Engine {
 	
 	public static boolean moveFile( File oldPlace, File newPlace ) {
 		boolean removeNewFile = true;
-		log.i("Moving file " + oldPlace.getAbsolutePath() + " to " + newPlace.getAbsolutePath());
 		if ( !oldPlace.exists() ) {
 			log.e("File " + oldPlace.getAbsolutePath() + " does not exist!");
 			return false;
@@ -964,8 +871,6 @@ public class Engine {
 		cacheDirName = createCacheDir(
 				DeviceInfo.EINK_NOOK ? new File("/media/") : Environment.getExternalStorageDirectory(), CACHE_BASE_DIR_NAME);
 		// non-standard SD mount points
-		log.i(cacheDirName
-				+ " will be used for cache, maxCacheSize=" + CACHE_DIR_SIZE);
 		if (cacheDirName == null) {
 			for (String dirname : mountedRootsMap.keySet()) {
 				cacheDirName = createCacheDir(new File(dirname),
@@ -974,20 +879,8 @@ public class Engine {
 					break;
 			}
 		}
-		// internal flash
-//		if (cacheDirName == null) {
-//			File cacheDir = mActivity.getCacheDir();
-//			if (!cacheDir.isDirectory())
-//				cacheDir.mkdir();
-//			cacheDirName = createCacheDir(cacheDir, null);
-//			// File cacheDir = mActivity.getDir("cache", Context.MODE_PRIVATE);
-////			if (cacheDir.isDirectory() && cacheDir.canWrite())
-////				cacheDirName = cacheDir.getAbsolutePath();
-//		}
 		// set cache directory for engine
 		if (cacheDirName != null) {
-			log.i(cacheDirName
-					+ " will be used for cache, maxCacheSize=" + CACHE_DIR_SIZE);
 			setCacheDirectoryInternal(cacheDirName, CACHE_DIR_SIZE);
 		} else {
 			log.w("No directory for cache is available!");
@@ -1030,21 +923,13 @@ public class Engine {
 		for (String key : list.keySet()) {
 			//if (pathCorrector.normalizeIfPossible(path).equals(pathCorrector.normalizeIfPossible(key))) {
 			if (plink.equals(folowLink(key))) { // path.startsWith(key + "/")
-				log.w("Skipping duplicate path " + path + " == " + key);
 				return false; // duplicate subpath
 			}
 		}
 		try {
 			File dir = new File(path);
 			if (dir.isDirectory()) {
-//				String[] d = dir.list();
-//				if ((d!=null && d.length>0) || dir.canWrite()) {
-					log.i("Adding FS root: " + path + " " + name);
 					list.put(path, name);
-//					return true;
-//				} else {
-//					log.i("Skipping mount point " + path + " : no files or directories found here, and writing is disabled");
-//				}
 			}
 		} catch (Exception e) {
 			// ignore
@@ -1075,7 +960,6 @@ public class Engine {
 		    final String[] lines = s.split("\n");
 		    for (String line : lines) {
 		        if (!line.toLowerCase(Locale.US).contains("asec")) {
-		        	log.d("mount entry: " + line);
 		            if (line.matches(reg)) {
 		                String[] parts = line.split(" ");
 		                for (String part : parts) {
@@ -1129,11 +1013,8 @@ public class Engine {
 	
 	private static void initMountRoots() {
 		
-		log.i("initMountRoots()");
 		HashSet<String> mountedPathsFromMountCmd = getExternalMounts();
 		HashSet<String> mountedPathsFromMountFile = readMountsFile();
-		log.i("mountedPathsFromMountCmd: " + mountedPathsFromMountCmd);
-		log.i("mountedPathsFromMountFile: " + mountedPathsFromMountFile);
 		
 		Map<String, String> map = new LinkedHashMap<String, String>();
 
@@ -1142,9 +1023,6 @@ public class Engine {
 		// dirty fix
 		if ("/nand".equals(sdpath) && new File("/sdcard").isDirectory())
 			sdpath = "/sdcard";
-		//String sdlink = isLink(sdpath);
-		//if (sdlink != null)
-		//	sdpath = sdlink;
 		
 		// main storage
 		addMountRoot(map, sdpath, "SD");
@@ -1161,17 +1039,12 @@ public class Engine {
 		for (String fstabFile : fstabLocations) {
 			fstabFileName = fstabFile;
 			s = loadFileUtf8(new File(fstabFile));
-			if (s != null)
-				log.i("found fstab file " + fstabFile);
 		}
-		if (s == null)
-			log.w("fstab file not found");
 		if ( s!= null) {
 			String[] rows = s.split("\n");
 			int rulesFound = 0;
 			for (String row : rows) {
 				if (row != null && row.startsWith("dev_mount")) {
-					log.d("mount rule: " + row);
 					rulesFound++;
 					String[] cols = Utils.splitByWhitespace(row);
 					if (cols.length >= 5) {
@@ -1184,7 +1057,6 @@ public class Engine {
 						String label = null;
 						boolean hasusb = dev.indexOf("usb") >= 0;
 						boolean hasmmc = dev.indexOf("mmc") >= 0;
-						log.i("*** mount point '" + name + "' *** " + point + "  (" + dev + ")");
 						if ("auto".equals(mode)) {
 							// assume AUTO is for externally automount devices
 							if (hasusb)
@@ -1206,8 +1078,6 @@ public class Engine {
 					}
 				}
 			}
-			if (rulesFound == 0)
-				log.w("mount point rules not found in " + fstabFileName);
 		}
 
 		// TODO: probably, hardcoded list is not necessary after /etc/vold parsing 
@@ -1277,17 +1147,12 @@ public class Engine {
 			if (dir.isDirectory() && dir.canRead() && dir.list().length > 0) {
 				String link = isLink(point);
 				if (link != null) {
-					log.d("found mount point path is link: " + point + " > " + link);
 					addMountRoot(map, link, link);
 				} else {
 					addMountRoot(map, point, point);
 				}
 			}
 		}
-		
-		// auto detection
-		//autoAddRoots(map, "/", SYSTEM_ROOT_PATHS);
-		//autoAddRoots(map, "/mnt", new String[] {});
 		
 		mountedRootsMap = map;
 		Collection<File> list = new ArrayList<File>();
@@ -1303,15 +1168,10 @@ public class Engine {
 		for (String point : mountPointsToAdd) {
 			String link = isLink(point);
 			if (link != null) {
-				log.d("pathCorrector.addRootLink(" + point + ", " + link + ")");
 				pathCorrector.addRootLink(point, link);
 			}
 		}
 		
-		Log.i("cr3", "Root list: " + list + ", root links: " + pathCorrector);
-
-		
-		log.i("Mount ROOTS:");
 		for (String f : map.keySet()) {
 			File path = new File(f);
 			String label = map.get(f);
@@ -1322,50 +1182,18 @@ public class Engine {
 				label = "Ext SD";
 				map.put(f, label);
 			}
-			
-			log.i("*** " + f + " '" + label + "' isDirectory=" + path.isDirectory() + " canRead=" + path.canRead() + " canWrite=" + path.canRead() + " isLink=" + isLink(f));
 		}
 		
-//		testPathNormalization("/sdcard/books/test.fb2");
-//		testPathNormalization("/mnt/sdcard/downloads/test.fb2");
-//		testPathNormalization("/mnt/sd/dir/test.fb2");
 	}
 	
-//	private void testPathNormalization(String path) {
-//		Log.i("cr3", "normalization: " + path + " => " + normalizePathUsingRootLinks(new File(path)));
-//	}
-	
-
-	// public void waitTasksCompletion()
-	// {
-	// log.i("waiting for engine tasks completion");
-	// try {
-	// mExecutor.awaitTermination(0, TimeUnit.SECONDS);
-	// } catch (InterruptedException e) {
-	// // ignore
-	// }
-	// }
-
 	/**
 	 * Uninitialize engine.
 	 */
 	public void uninit() {
-//		log.i("Engine.uninit() is called for " + hashCode());
-//		if (initialized) {
-//			synchronized(this) {
-//				uninitInternal();
-//			}
-//			initialized = false;
-//		}
 		instance = null;
 	}
 
 	protected void finalize() throws Throwable {
-		log.i("Engine.finalize() is called for " + hashCode());
-		// if ( initialized ) {
-		// //uninitInternal();
-		// initialized = false;
-		// }
 	}
 
 	private static String[] findFonts() {
@@ -1380,8 +1208,6 @@ public class Engine {
 		ArrayList<String> fontPaths = new ArrayList<String>();
 		for (File fontDir : dirs) {
 			if (fontDir.isDirectory()) {
-				log.v("Scanning directory " + fontDir.getAbsolutePath()
-						+ " for font files");
 				// get font names
 				String[] fileList = fontDir.list(new FilenameFilter() {
 					public boolean accept(File dir, String filename) {
@@ -1397,7 +1223,6 @@ public class Engine {
 					String pathName = new File(fontDir, fileList[i])
 							.getAbsolutePath();
 					fontPaths.add(pathName);
-					log.v("found font: " + pathName);
 				}
 			}
 		}
@@ -1406,52 +1231,15 @@ public class Engine {
 	}
 
 	private String SO_NAME = "lib" + LIBRARY_NAME + ".so";
-//	private static boolean force_install_library = false;
 
 	private static void installLibrary() {
 		try {
-//			if (force_install_library)
-//				throw new Exception("forcing install");
 			// try loading library w/o manual installation
-			log.i("trying to load library " + LIBRARY_NAME
-					+ " w/o installation");
 			System.loadLibrary(LIBRARY_NAME);
 			// try invoke native method
-			//log.i("trying execute native method ");
-			//setHyphenationMethod(HYPH_NONE, new byte[] {});
-			log.i(LIBRARY_NAME + " loaded successfully");
-//		} catch (Exception ee) {
-//			log.i(SO_NAME + " not found using standard paths, will install manually");
-//			File sopath = mActivity.getDir("libs", Context.MODE_PRIVATE);
-//			File soname = new File(sopath, SO_NAME);
-//			try {
-//				sopath.mkdirs();
-//				File zip = new File(mActivity.getPackageCodePath());
-//				ZipFile zipfile = new ZipFile(zip);
-//				ZipEntry zipentry = zipfile.getEntry("lib/armeabi/" + SO_NAME);
-//				if (!soname.exists() || zipentry.getSize() != soname.length()) {
-//					InputStream is = zipfile.getInputStream(zipentry);
-//					OutputStream os = new FileOutputStream(soname);
-//					Log.i("cr3",
-//							"Installing JNI library "
-//									+ soname.getAbsolutePath());
-//					final int BUF_SIZE = 0x10000;
-//					byte[] buf = new byte[BUF_SIZE];
-//					int n;
-//					while ((n = is.read(buf)) > 0)
-//						os.write(buf, 0, n);
-//					is.close();
-//					os.close();
-//				} else {
-//					log.i("JNI library " + soname.getAbsolutePath()
-//							+ " is up to date");
-//				}
-//				System.load(soname.getAbsolutePath());
-//				//setHyphenationMethod(HYPH_NONE, new byte[] {});
 			} catch (Exception e) {
 				log.e("cannot install " + LIBRARY_NAME + " library", e);
 				throw new RuntimeException("Cannot load JNI library");
-//			}
 		}
 	}
 
@@ -1536,10 +1324,6 @@ public class Engine {
 
 	public static void findHyphDictionariesFromDirectory(File dir) {
 		for (File f : dir.listFiles()) {
-			if (!f.isDirectory()) {
-				if (HyphDict.fromFile(f))
-					log.i("Registered external hyphenation dict " + f.getAbsolutePath());
-			}
 		}
 	}
 
@@ -1663,16 +1447,13 @@ public class Engine {
 
 	// static initialization
 	static {
-		log.i("Engine() : static initialization");
 		installLibrary();
 		initMountRoots();
 		mFonts = findFonts();
 		findExternalHyphDictionaries();
 		if (!initInternal(mFonts)) {
-			log.i("Engine.initInternal failed!");
 			throw new RuntimeException("Cannot initialize CREngine JNI");
 		}
 		initCacheDirectory();
-		log.i("Engine() : initialization done");
 	}
 }

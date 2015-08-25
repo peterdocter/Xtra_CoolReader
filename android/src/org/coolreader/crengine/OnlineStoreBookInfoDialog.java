@@ -71,17 +71,17 @@ public class OnlineStoreBookInfoDialog extends BaseDialog {
 	}
 	
 	RatingBar rbBookRating;
-    Button btnBuyOrDownload;
-    Button btnPreview;
-    TextView lblTitle;
-    TextView lblSeries;
-    TextView lblAuthors;
-    TextView lblFileInfo;
-    TextView lblLogin;
-    TextView lblStatus;
-    TextView lblBalance;
-    TextView lblPrice;
-    TextView lblNormalPrice;
+        Button btnBuyOrDownload;
+        Button btnPreview;
+        TextView lblTitle;
+        TextView lblSeries;
+        TextView lblAuthors;
+        TextView lblFileInfo;
+        TextView lblLogin;
+        TextView lblStatus;
+        TextView lblBalance;
+        TextView lblPrice;
+        TextView lblNormalPrice;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -331,9 +331,6 @@ public class OnlineStoreBookInfoDialog extends BaseDialog {
 	
 	private void openBook(boolean trial) {
 		File book = getBookFile(trial);
-//		FileInfo fileInfo = new FileInfo(book);
-//		FileInfo parent = Services.getScanner().findParent(fileInfo, Services.getScanner().getRoot());
-//		FileInfo bookFileInfo = parent.findItemByPathName(book.getAbsolutePath());
 		dismiss();
 		mActivity.loadDocument(book.getAbsolutePath(), null);
 	}

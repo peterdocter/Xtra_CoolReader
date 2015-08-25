@@ -53,19 +53,11 @@ public class StatusBar extends LinearLayout implements Settings {
 			lblTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
 			lblPosition.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
 			if (needRelayout) {
-				CoolReader.log.d("changing status bar layout");
 				lblPosition.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 				lblTitle.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 				content.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 				content.forceLayout();
 				forceLayout();
-//				content.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-//				measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-//				content.forceLayout();
-//				requestLayout();
-//				removeAllViews();
-//				addView(content);
-//				addView(indicator);
 			}
 			invalidate();
 			return needRelayout;
@@ -100,18 +92,6 @@ public class StatusBar extends LinearLayout implements Settings {
 		}
 
 		public void onThemeChanged(InterfaceTheme theme) {
-//			//color = nightMode ? 0x606060 : theme.getStatusTextColor();
-//			lblTitle.setTextColor(0xFF000000 | color);
-//			lblPosition.setTextColor(0xFF000000 | color);
-////			if (DeviceInfo.EINK_SCREEN)
-////				setBackgroundColor(0xFFFFFFFF);
-////			else if (nightMode)
-////				setBackgroundColor(0xFF000000);
-////			else
-////				setBackgroundResource(theme.getReaderStatusBackground());
-//			indicator.setColor(color);
-//			if (isShown())
-//				invalidate();
 		}
 
 		@Override
@@ -156,12 +136,6 @@ public class StatusBar extends LinearLayout implements Settings {
 						append(pos, percent, " ");
 					}
 				}
-//				if (position != null) {
-//					if (showPosPercent) {
-//						String percent = position.getPercent() > 0 ? Utils.formatPercent(position.getPercent()) : "0%";
-//						append(pos, percent, " ");
-//					}
-//				}
 			}
 			if (showTime && fullscreen) {
 				append(pos, Utils.formatTime(activity, System.currentTimeMillis()), " ");
@@ -185,7 +159,6 @@ public class StatusBar extends LinearLayout implements Settings {
 			else
 				indicator.setPosition(0);
 			if (updated && isShown()) {
-				CoolReader.log.d("changing status bar layout");
 				measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
 				forceLayout();
 			}

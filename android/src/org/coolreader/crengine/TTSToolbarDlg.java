@@ -35,12 +35,6 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 	static public TTSToolbarDlg showDialog( CoolReader coolReader, ReaderView readerView, TTS tts)
 	{
 		TTSToolbarDlg dlg = new TTSToolbarDlg(coolReader, readerView, tts);
-		//dlg.mWindow.update(dlg.mAnchor, width, height)
-		Log.d("cr3", "popup: " + dlg.mWindow.getWidth() + "x" + dlg.mWindow.getHeight());
-		//dlg.update();
-		//dlg.showAtLocation(readerView, Gravity.LEFT|Gravity.TOP, readerView.getLeft()+50, readerView.getTop()+50);
-		//dlg.showAsDropDown(readerView);
-		//dlg.update();
 		return dlg;
 	}
 	
@@ -96,7 +90,6 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 			
 			@Override
 			public void onNewSelection(Selection selection) {
-				Log.d("cr3", "onNewSelection: " + selection.text);
 				currentSelection = selection;
 				if ( isSpeaking )
 					say( currentSelection );
@@ -104,7 +97,6 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 			
 			@Override
 			public void onFail() {
-				Log.d("cr3", "fail()");
 				stop();
 				//currentSelection = null;
 			}
@@ -149,7 +141,6 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 	
 	@Override
 	public void onUtteranceCompleted(String utteranceId) {
-		Log.d("cr3", "onUtteranceCompleted " + utteranceId);
 		if ( isSpeaking )
 			moveSelection( ReaderCommand.DCMD_SELECT_NEXT_SENTENCE );
 	}
@@ -165,27 +156,10 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 		View panel = (LayoutInflater.from(coolReader.getApplicationContext()).inflate(R.layout.tts_toolbar, null));
 		playPauseButton = (ImageButton)panel.findViewById(R.id.tts_play_pause);
 		playPauseButton.setImageResource(R.drawable.ic_media_play);
-		//panel.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		panel.measure(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		
-		//mReaderView.getS
-		
 		mWindow = new PopupWindow( mAnchor.getContext() );
-//		mWindow.setFocusable(true);
-//		mWindow.setTouchable(true);
-//		mWindow.setOutsideTouchable(true);
 		mWindow.setBackgroundDrawable(new BitmapDrawable());
-//		mWindow.setTouchInterceptor(new OnTouchListener() {
-//			@Override
-//			public boolean onTouch(View v, MotionEvent event) {
-////				if ( event.getAction()==MotionEvent.ACTION_OUTSIDE ) {
-////					stopAndClose();
-////					return true;
-////				}
-//				return true;
-//			}
-//		});
-		//super(panel);
 		mPanel = panel;
 		mPanel.findViewById(R.id.tts_play_pause).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -230,14 +204,6 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 					case KeyEvent.KEYCODE_BACK:
 						stopAndClose();
 						return true;
-//					case KeyEvent.KEYCODE_DPAD_LEFT:
-//					case KeyEvent.KEYCODE_DPAD_UP:
-//						//mReaderView.findNext(pattern, true, caseInsensitive);
-//						return true;
-//					case KeyEvent.KEYCODE_DPAD_RIGHT:
-//					case KeyEvent.KEYCODE_DPAD_DOWN:
-//						//mReaderView.findNext(pattern, false, caseInsensitive);
-//						return true;
 					}
 				} else if ( event.getAction()==KeyEvent.ACTION_DOWN ) {
 					switch ( keyCode ) {
@@ -277,9 +243,6 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 		//mWindow.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
 		mWindow.setWidth(WindowManager.LayoutParams.FILL_PARENT);
 		mWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-//		setWidth(panel.getWidth());
-//		setHeight(panel.getHeight());
-		
 		mWindow.setFocusable(true);
 		mWindow.setTouchable(true);
 		mWindow.setOutsideTouchable(true);
@@ -288,15 +251,9 @@ public class TTSToolbarDlg implements TTS.OnUtteranceCompletedListener {
 		
 		int [] location = new int[2];
 		mAnchor.getLocationOnScreen(location);
-		//mWindow.update(location[0], location[1], mPanel.getWidth(), mPanel.getHeight() );
-		//mWindow.setWidth(mPanel.getWidth());
-		//mWindow.setHeight(mPanel.getHeight());
 
 		mWindow.showAtLocation(mAnchor, Gravity.TOP | Gravity.CENTER_HORIZONTAL, location[0], location[1] + mAnchor.getHeight() - mPanel.getHeight());
-//		if ( mWindow.isShowing() )
-//			mWindow.update(mAnchor, 50, 50);
-		//dlg.mWindow.showAsDropDown(dlg.mAnchor);
-		
+
 		setReaderMode();
 
 		// setup speed && volume seek bars

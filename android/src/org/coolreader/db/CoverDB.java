@@ -37,10 +37,7 @@ public class CoverDB extends BaseDB {
 				mDB.setVersion(DB_VERSION);
 		}
 
-		dumpStatistics();
-	
 		if (CLEAR_ON_START) {
-			log.w("CLEAR_ON_START is ON: removing all coverpages from DB");
 			execSQLIgnoreErrors("DELETE FROM coverpages");
 		}
 		
@@ -50,10 +47,6 @@ public class CoverDB extends BaseDB {
 	@Override
 	protected String dbFileName() {
 		return "cr3db_cover.sqlite";
-	}
-
-	private void dumpStatistics() {
-		log.i("coverDB: " + longQuery("SELECT count(*) FROM coverpages") + " coverpages");
 	}
 
 	public void clearCaches() {
@@ -84,7 +77,6 @@ public class CoverDB extends BaseDB {
 				stmt.bindString(1, bookId);
 				stmt.bindBlob(2, data);
 				stmt.execute();
-				Log.v("cr3", "db: saved " + data.length + " bytes of cover page for book " + bookId);
 			}
 		} catch ( Exception e ) {
 			Log.e("cr3", "Exception while trying to save cover page to DB: " + e.getMessage() );

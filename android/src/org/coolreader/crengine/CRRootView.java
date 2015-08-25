@@ -22,8 +22,6 @@ import static android.view.ContextMenu.ContextMenuInfo;
 
 public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 
-	public static final Logger log = L.create("cr");
-
 	private final CoolReader mActivity;
 	private ViewGroup mView;
 	private LinearLayout mRecentBooksScroll;
@@ -40,7 +38,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 		this.mActivity = activity;
 		this.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		this.mCoverpageManager = Services.getCoverpageManager();
-
 
 		int screenHeight = mActivity.getWindowManager().getDefaultDisplay().getHeight();
 		int screenWidth = mActivity.getWindowManager().getDefaultDisplay().getWidth();
@@ -83,7 +80,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
 			long duration = Utils.timeInterval(menuDownTs);
-			L.v("CRRootView.onKeyUp(" + keyCode + ") duration = " + duration);
 			if (duration > 700 && duration < 10000)
 				mActivity.showBrowserOptionsDialog();
 			else
@@ -92,7 +88,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 		}
 		if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
 			long duration = Utils.timeInterval(backDownTs);
-			L.v("CRRootView.onKeyUp(" + keyCode + ") duration = " + duration);
 			if (duration > 700 && duration < 10000 || !mActivity.isBookOpened()) {
 				mActivity.finish();
 				return true;
@@ -154,7 +149,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 				state = state + " " + Utils.formatLastPosition(mActivity, Services.getHistory().getLastPos(item));
 			setBookInfoItem(mView, R.id.lbl_book_info, state);
 		} else {
-			log.w("No current book in history");
 			cover.setImageDrawable(null);
 			cover.setMinimumHeight(0);
 			cover.setMinimumWidth(0);
@@ -279,9 +273,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 			opdsRoot.addItems(catalogs);
 		catalogs.add(0, opdsRoot);
 		
-//		if (lastCatalogs.equals(catalogs)) {
-//			return; // not changed
-//		}
 		lastCatalogs = catalogs;
 		
 		LayoutInflater inflater = LayoutInflater.from(mActivity);
@@ -322,39 +313,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 					@Override
 					public void onClick(View v) {
 						mActivity.showBrowser(FileInfo.ONLINE_CATALOG_PLUGIN_PREFIX + LitresPlugin.PACKAGE_NAME);
-//						LitresConnection.instance().loadGenres(new ResultHandler() {
-//							@Override
-//							public void onResponse(LitresResponse response) {
-//								if (response instanceof LitresConnection.LitresGenre) {
-//									LitresConnection.LitresGenre result = (LitresConnection.LitresGenre)response;
-//									log.d("genres found: " + result.getChildCount() + " on top level");
-//								}
-//							}
-//						});
-//						LitresConnection.instance().authorize("login", "password", new ResultHandler() {
-//							@Override
-//							public void onResponse(LitresResponse response) {
-//								if (response instanceof LitresConnection.LitresAuthInfo) {
-//									LitresConnection.LitresAuthInfo result = (LitresConnection.LitresAuthInfo)response;
-//									log.d("authorization successful: " + result);
-//								} else {
-//									log.d("authorization failed");
-//								}
-//							}
-//						});
-//						LitresConnection.instance().loadAuthorsByLastName("л", new ResultHandler() {
-//							@Override
-//							public void onResponse(LitresResponse response) {
-//								if (response instanceof LitresConnection.LitresAuthors) {
-//									LitresConnection.LitresAuthors result = (LitresConnection.LitresAuthors)response;
-//									log.d("authors found: " + result.size());
-//									for (int i=0; i<result.size() && i<10; i++) {
-//										log.d(result.get(i).toString());
-//									}
-//								}
-//							}
-//						});
-//						mActivity.showToast("TODO");
 					}
 				});
 			} else {
@@ -499,19 +457,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 		mLibraryScroll.invalidate();
 	}
 
-//	private HorizontalListView createHScroll(int layoutId, OnLongClickListener longClickListener) {
-//		LinearLayout layout = (LinearLayout)mView.findViewById(layoutId);
-//		layout.removeAllViews();
-//		HorizontalListView view = new HorizontalListView(mActivity, null);
-//		view.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-////		view.setFadingEdgeLength(10);
-////		view.setHorizontalFadingEdgeEnabled(true);
-//		layout.addView(view);
-//		if (longClickListener != null)
-//			layout.setOnLongClickListener(longClickListener); 
-//		return view;
-//	}
-	
 	private void updateDelimiterTheme(int viewId) {
 		View view = mView.findViewById(viewId);
 		InterfaceTheme theme = mActivity.getCurrentTheme();
@@ -540,27 +485,6 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 		mOnlineCatalogsScroll = (LinearLayout)mView.findViewById(R.id.scroll_online_catalogs);
 
 		updateCurrentBook(Services.getHistory().getLastBook());
-		
-//		((ImageButton)mView.findViewById(R.id.btn_recent_books)).setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				Activities.showRecentBooks();
-//			}
-//		});
-//
-//		((ImageButton)mView.findViewById(R.id.btn_online_catalogs)).setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				Activities.showOnlineCatalogs();
-//			}
-//		});
-		
-//		((ImageButton)mView.findViewById(R.id.btn_settings)).setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				showSettings();
-//			}
-//		});
 
 		((ImageButton)mView.findViewById(R.id.btn_menu)).setOnClickListener(new OnClickListener() {
 			@Override
@@ -625,44 +549,20 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 
 		removeAllViews();
 		addView(mView);
-		//setFocusable(false);
-		//setFocusableInTouchMode(false);
-//		requestFocus();
-//		setOnTouchListener(new OnTouchListener() {
-//			@Override
-//			public boolean onTouch(View v, MotionEvent event) {
-//				return true;
-//			}
-//		});
 	}
-
-
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		log.d("CRRootView.onTouchEvent(" + event.getAction() + ")");
 		return false;
 	}
-	
-	
 
 	@Override
 	public void onWindowFocusChanged(boolean hasWindowFocus) {
-		log.d("CRRootView.onWindowFocusChanged(" + hasWindowFocus + ")");
 		super.onWindowFocusChanged(hasWindowFocus);
 	}
 
 	public void onCoverpagesReady(ArrayList<CoverpageManager.ImageItem> files) {
-		//invalidate();
-		log.d("CRRootView.onCoverpagesReady(" + files + ")");
 		CoverpageManager.invalidateChildImages(mView, files);
-//		for (int i=0; i<mRecentBooksScroll.getChildCount(); i++) {
-//			mRecentBooksScroll.getChildAt(i).invalidate();
-//		}
-//		//mRecentBooksScroll.invalidate();
-		//ImageView cover = (ImageView)mView.findViewById(R.id.book_cover);
-		//cover.invalidate();
-//		//mView.invalidate();
 	}
 
 	@Override
@@ -720,7 +620,5 @@ public class CRRootView extends ViewGroup implements CoverpageReadyListener {
 			}
 		});
 	}
-
-	
 	
 }

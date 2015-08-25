@@ -21,12 +21,10 @@ public class ProgressPopup {
 	}
 	public void show() {
 		if (popup == null) {
-			L.d("showing progress indicator");
 	        LayoutInflater inflater = LayoutInflater.from(context);
 	        View content = inflater.inflate(R.layout.network_access_progress, null);
 	        content.measure(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			popup = new PopupWindow(content, content.getMeasuredWidth(), content.getMeasuredHeight());
-	        //popup.setContentView(content);
 	        popup.setBackgroundDrawable(null);
 	        popup.setOutsideTouchable(true);
 	        popup.showAtLocation(parent, Gravity.CENTER, 0, 0);
@@ -48,7 +46,6 @@ public class ProgressPopup {
 	}
 	public void hide() {
 		if (popup != null) {
-			L.d("hiding progress indicator");
 			popup.dismiss();
 			popup = null;
 		}

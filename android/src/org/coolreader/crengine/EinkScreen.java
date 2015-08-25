@@ -68,23 +68,6 @@ public class EinkScreen {
 			}
 			
 			return;
-			/*
-			if (UpdateMode == 1 && UpdateModeInterval != 0) {
-				if (RefreshNumber == 0) {
-					// быстрый режим, один раз устанавливается
-					N2EpdController.setMode(N2EpdController.REGION_APP_3,
-											N2EpdController.WAVE_GL16,
-											N2EpdController.MODE_ACTIVE, view); // why not MODE_ACTIVE_ALL?
-				} else if (UpdateModeInterval == RefreshNumber) {
-					// одно качественное обновление для быстрого режима
-					N2EpdController.setMode(N2EpdController.REGION_APP_3,
-											N2EpdController.WAVE_GU,
-											N2EpdController.MODE_CLEAR_ALL, view);
-					RefreshNumber = -1;
-				}
-				RefreshNumber ++;
-			}
-			*/
 		}
 	}
 
@@ -147,19 +130,16 @@ public class EinkScreen {
 			N2EpdController.setMode(N2EpdController.REGION_APP_3,
 				N2EpdController.WAVE_GC,
 				N2EpdController.MODE_ONESHOT_ALL);
-//				N2EpdController.MODE_CLEAR, view);
 			break;
 		case cmodeOneshot:	
 			N2EpdController.setMode(N2EpdController.REGION_APP_3,
 				N2EpdController.WAVE_GU,
 				N2EpdController.MODE_ONESHOT_ALL);
-//				N2EpdController.MODE_ONESHOT_ALL, view);
 			break;
 		case cmodeActive:	
 			N2EpdController.setMode(N2EpdController.REGION_APP_3,
 				N2EpdController.WAVE_GL16,
 				N2EpdController.MODE_ACTIVE_ALL);
-//				N2EpdController.MODE_ACTIVE_ALL, view);
 			break;
 		}  
 	}	

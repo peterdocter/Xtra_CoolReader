@@ -1,8 +1,6 @@
 package org.coolreader;
 
 import org.coolreader.crengine.DeviceInfo;
-import org.coolreader.crengine.L;
-import org.coolreader.crengine.Logger;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
@@ -104,8 +102,6 @@ public class Dictionaries {
 
 	private final static int FLAG_ACTIVITY_CLEAR_TASK = 0x00008000;
 	
-	public static final Logger log = L.create("cr3dict");
-	
 	@SuppressWarnings("serial")
 	public static class DictionaryException extends Exception {
 		public DictionaryException(String msg) {
@@ -115,7 +111,6 @@ public class Dictionaries {
 	
 	@SuppressLint("NewApi")
 	public void findInDictionary(String s) throws DictionaryException {
-		log.d("lookup in dictionary: " + s);
 		switch (currentDictionary.internal) {
 		case 0:
 			Intent intent0 = new Intent(currentDictionary.action);
@@ -138,13 +133,6 @@ public class Dictionaries {
 			final String SEARCH_ACTION  = "colordict.intent.action.SEARCH";
 			final String EXTRA_QUERY   = "EXTRA_QUERY";
 			final String EXTRA_FULLSCREEN = "EXTRA_FULLSCREEN";
-//			final String EXTRA_HEIGHT  = "EXTRA_HEIGHT";
-//			final String EXTRA_WIDTH   = "EXTRA_WIDTH";
-//			final String EXTRA_GRAVITY  = "EXTRA_GRAVITY";
-//			final String EXTRA_MARGIN_LEFT = "EXTRA_MARGIN_LEFT";
-//			final String EXTRA_MARGIN_TOP  = "EXTRA_MARGIN_TOP";
-//			final String EXTRA_MARGIN_BOTTOM = "EXTRA_MARGIN_BOTTOM";
-//			final String EXTRA_MARGIN_RIGHT = "EXTRA_MARGIN_RIGHT";
 
 			Intent intent1 = new Intent(SEARCH_ACTION);
 			if (s!=null)

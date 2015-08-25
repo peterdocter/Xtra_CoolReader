@@ -78,7 +78,6 @@ public class DeviceInfo {
 			Class<?> cl = android.os.Build.VERSION.class;
 			fld = cl.getField("SDK_INT");
 			sdkInt = fld.getInt(cl);
-			Log.i("cr3", "API LEVEL " + sdkInt + " detected");
 		} catch (SecurityException e) {
 			// ignore
 		} catch (NoSuchFieldException e) {
@@ -149,17 +148,11 @@ public class DeviceInfo {
 		try {
 			return (String)Build.class.getField(fieldName).get(null);
 		} catch (Exception e) {
-			Log.d("cr3", "Exception while trying to check Build." + fieldName);
 			return "";
 		}
 	}
 	
 	
-	static {
-		Log.i("cr3", "DeviceInfo: MANUFACTURER=" + MANUFACTURER + ", MODEL=" + MODEL + ", DEVICE=" + DEVICE + ", PRODUCT=" + PRODUCT + ", BRAND=" + BRAND);
-		Log.i("cr3", "DeviceInfo: MIN_SCREEN_BRIGHTNESS_PERCENT=" + MIN_SCREEN_BRIGHTNESS_PERCENT + ", EINK_SCREEN=" + EINK_SCREEN + ", AMOLED_SCREEN=" + AMOLED_SCREEN + ", POCKETBOOK=" + POCKETBOOK);
-	}
-
 	// multiple patterns divided by |, * wildcard can be placed at beginning and/or end of pattern
 	// samples: "samsung", "p500|p510", "sgs*|sgh*"
 	private static boolean match(String value, String pattern) {
@@ -229,7 +222,6 @@ public class DeviceInfo {
 //		if (patterns.length >= 3)
 //			if (!match(device, patterns[2]))
 //				return false;
-//		Log.v("cr3", "matched : " + pattern + " == " + manufacturer + "," + model + "," + device);
 //		return true;
 //	}
 //	

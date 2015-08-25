@@ -194,7 +194,6 @@ public class BookmarksDlg  extends BaseDialog {
 		}
 		public void setShortcutMode( boolean shortcutMode ) {
 			if (mBookInfo == null) {
-				L.e("BookmarkList - mBookInfo is null");
 				return;
 			}
 			if ( !shortcutMode )
@@ -284,8 +283,7 @@ public class BookmarksDlg  extends BaseDialog {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.v("cr3", "creating BookmarksDlg");
-		//setTitle(mCoolReader.getResources().getString(R.string.win_title_bookmarks));
+
         setCancelable(true);
 		super.onCreate(savedInstanceState);
 		registerForContextMenu(mList);

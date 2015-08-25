@@ -13,8 +13,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class CRDBServiceAccessor {
-	private final static String TAG = "cr3db";
-	private Activity mActivity;
+    private final static String TAG = "cr3db";
+    private Activity mActivity;
     private CRDBService.LocalBinder mService;
     private boolean mServiceBound;
     private MountPathCorrector pathCorrector;
@@ -35,12 +35,10 @@ public class CRDBServiceAccessor {
 	private boolean bindIsCalled;
     public void bind(final Runnable boundCallback) {
     	if (mService != null) {
-        	Log.v(TAG, "CRDBService is already bound");
         	if (boundCallback != null)
         		boundCallback.run();
     		return;
     	}
-    	Log.v(TAG, "binding CRDBService");
     	if (boundCallback != null)
     		onConnectCallbacks.add(boundCallback);
     	if (!bindIsCalled) {
@@ -48,14 +46,11 @@ public class CRDBServiceAccessor {
 	    	if (mActivity.bindService(new Intent(mActivity, 
 	                CRDBService.class), mServiceConnection, Context.BIND_AUTO_CREATE)) {
 	            mServiceBound = true;
-	    	} else {
-	    		Log.e(TAG, "cannot bind CRDBService");
 	    	}
     	}
     }
 
     public void unbind() {
-    	Log.v(TAG, "unbinding CRDBService");
         if (mServiceBound) {
             // Detach our existing connection.
             mActivity.unbindService(mServiceConnection);
@@ -66,7 +61,6 @@ public class CRDBServiceAccessor {
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
         	mService = ((CRDBService.LocalBinder)service);
-        	Log.i(TAG, "connected to CRDBService");
         	if (pathCorrector != null)
         		mService.setPathCorrector(pathCorrector);
         	if (onConnectCallbacks.size() != 0) {
@@ -79,7 +73,6 @@ public class CRDBServiceAccessor {
 
         public void onServiceDisconnected(ComponentName className) {
             mService = null;
-        	Log.i(TAG, "disconnected from CRDBService");
         }
     };
 

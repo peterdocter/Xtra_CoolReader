@@ -5,8 +5,6 @@ import android.graphics.Bitmap;
 
 public class DocView {
 
-	public static final Logger log = L.create("dv");
-
 	public static final int SWAP_DONE = 0;
 	public static final int SWAP_TIMEOUT = 1;
 	public static final int SWAP_ERROR = 2;
@@ -14,7 +12,6 @@ public class DocView {
 	private Object mutex;
 
 	public DocView(Object mutex) {
-		log.i("DocView()");
 		this.mutex = mutex;
 	}
 	
@@ -188,7 +185,6 @@ public class DocView {
 	 */
 	public void resize(int dx, int dy) {
 		synchronized(mutex) {
-			log.d("DocView.resize(" + dx + ", "+ dy + ")");
 			resizeInternal(dx, dy);
 		}
 	}

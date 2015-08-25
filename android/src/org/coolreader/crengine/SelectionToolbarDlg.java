@@ -30,12 +30,6 @@ public class SelectionToolbarDlg {
 	static public void showDialog( CoolReader coolReader, ReaderView readerView, final Selection selection )
 	{
 		SelectionToolbarDlg dlg = new SelectionToolbarDlg(coolReader, readerView, selection);
-		//dlg.mWindow.update(dlg.mAnchor, width, height)
-		Log.d("cr3", "popup: " + dlg.mWindow.getWidth() + "x" + dlg.mWindow.getHeight());
-		//dlg.update();
-		//dlg.showAtLocation(readerView, Gravity.LEFT|Gravity.TOP, readerView.getLeft()+50, readerView.getTop()+50);
-		//dlg.showAsDropDown(readerView);
-		//dlg.update();
 	}
 
 	private boolean pageModeSet;
@@ -44,7 +38,6 @@ public class SelectionToolbarDlg {
 	{
 		if (pageModeSet)
 			return;
-		//if (DeviceInfo.EINK_SCREEN) { return; } // switching to scroll view doesn't work well on eink screens
 		
 		String oldViewSetting = mReaderView.getSetting( ReaderView.PROP_PAGE_VIEW_MODE );
 		if ( "1".equals(oldViewSetting) ) {
@@ -62,20 +55,17 @@ public class SelectionToolbarDlg {
 	}
 	
 	private void changeSelectionBound(boolean start, int delta) {
-		L.d("changeSelectionBound(" + (start?"start":"end") + ", " + delta + ")");
 		setReaderMode();
 		ReaderCommand cmd = start ? ReaderCommand.DCMD_SELECT_MOVE_LEFT_BOUND_BY_WORDS : ReaderCommand.DCMD_SELECT_MOVE_RIGHT_BOUND_BY_WORDS; 
 		mReaderView.moveSelection(cmd, delta, new ReaderView.MoveSelectionCallback() {
 			
 			@Override
 			public void onNewSelection(Selection selection) {
-				Log.d("cr3", "onNewSelection: " + selection.text);
 				SelectionToolbarDlg.this.selection = selection;
 			}
 			
 			@Override
 			public void onFail() {
-				Log.d("cr3", "fail()");
 				//currentSelection = null;
 			}
 		});
@@ -196,23 +186,9 @@ public class SelectionToolbarDlg {
 					case KeyEvent.KEYCODE_BACK:
 						closeDialog(true);
 						return true;
-//					case KeyEvent.KEYCODE_DPAD_LEFT:
-//					case KeyEvent.KEYCODE_DPAD_UP:
-//						//mReaderView.findNext(pattern, true, caseInsensitive);
-//						return true;
-//					case KeyEvent.KEYCODE_DPAD_RIGHT:
-//					case KeyEvent.KEYCODE_DPAD_DOWN:
-//						//mReaderView.findNext(pattern, false, caseInsensitive);
-//						return true;
 					}
 				} else if ( event.getAction()==KeyEvent.ACTION_DOWN ) {
 						switch ( keyCode ) {
-//						case KeyEvent.KEYCODE_BACK:
-//						case KeyEvent.KEYCODE_DPAD_LEFT:
-//						case KeyEvent.KEYCODE_DPAD_UP:
-//						case KeyEvent.KEYCODE_DPAD_RIGHT:
-//						case KeyEvent.KEYCODE_DPAD_DOWN:
-//							return true;
 						}
 					}
 				if ( keyCode == KeyEvent.KEYCODE_BACK) {
@@ -235,8 +211,6 @@ public class SelectionToolbarDlg {
 		//mWindow.setAnimationStyle(android.R.style.Animation_Toast);
 		mWindow.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
 		mWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-//		setWidth(panel.getWidth());
-//		setHeight(panel.getHeight());
 		
 		mWindow.setFocusable(true);
 		mWindow.setTouchable(true);
@@ -246,15 +220,9 @@ public class SelectionToolbarDlg {
 		
 		int [] location = new int[2];
 		mAnchor.getLocationOnScreen(location);
-		//mWindow.update(location[0], location[1], mPanel.getWidth(), mPanel.getHeight() );
-		//mWindow.setWidth(mPanel.getWidth());
-		//mWindow.setHeight(mPanel.getHeight());
 
 		int popupY = location[1] + mAnchor.getHeight() - mPanel.getHeight();
 		mWindow.showAtLocation(mAnchor, Gravity.TOP | Gravity.CENTER_HORIZONTAL, location[0], popupY);
-//		if ( mWindow.isShowing() )
-//			mWindow.update(mAnchor, 50, 50);
-		//dlg.mWindow.showAsDropDown(dlg.mAnchor);
 		int y = sel.startY;
 		if (y > sel.endY)
 			y = sel.endY;

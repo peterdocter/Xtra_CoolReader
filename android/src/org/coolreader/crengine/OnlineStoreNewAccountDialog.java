@@ -153,7 +153,6 @@ public class OnlineStoreNewAccountDialog extends BaseDialog {
 		params.put(OnlineStoreRegistrationParam.NEW_ACCOUNT_PARAM_SUBSCRIBE, subscribe ? "1" : "0");
 		
 		progress.show();
-		L.i("trying to register new LitRes account " + login);
 		mPlugin.registerNewAccount(params, new AuthenticationCallback() {
 			@Override
 			public void onError(int errorCode, String errorMessage) {
@@ -163,7 +162,6 @@ public class OnlineStoreNewAccountDialog extends BaseDialog {
 			}
 			@Override
 			public void onSuccess() {
-				L.i("registerNewAccount - successful");
 				progress.hide();
 				mActivity.showToast(R.string.online_store_error_succesful_registration);
 				OnlineStoreNewAccountDialog.super.onPositiveButtonClick();

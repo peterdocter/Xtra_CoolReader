@@ -63,12 +63,8 @@ public class InputDialog extends BaseDialog {
 				}
 			});
         }
-        //input = new EditText(getContext());
         if ( isNumberEdit )
         	input.setKeyListener(DigitsKeyListener.getInstance("0123456789."));
-//	        input.getText().setFilters(new InputFilter[] {
-//	        	new DigitsKeyListener()        
-//	        });
         setView(layout);
 	}
 	@Override

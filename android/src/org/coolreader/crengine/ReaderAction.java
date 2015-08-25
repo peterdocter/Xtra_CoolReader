@@ -151,8 +151,6 @@ public class ReaderAction {
 		SWITCH_PROFILE,
 		TEXT_AUTOFORMAT,
 		USER_MANUAL,
-//		AUTOSCROLL_SPEED_INCREASE,
-//		AUTOSCROLL_SPEED_DECREASE,
 	};
 
 	public boolean isNone() {

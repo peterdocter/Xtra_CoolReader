@@ -35,7 +35,6 @@ public class AboutDialog extends BaseDialog implements TabContentFactory {
 	}
 
 	private void installPackage( String packageName ) {
-		Log.i("cr3", "installPackageL " + packageName);
 		try {
 			mCoolReader.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
 		} catch ( ActivityNotFoundException e ) {

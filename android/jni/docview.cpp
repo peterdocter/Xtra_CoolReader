@@ -9,7 +9,6 @@
 #endif
 
 
-
 static jfieldID gNativeObjectID = 0;
 
 class DocViewCallback : public LVDocViewCallback {
@@ -63,79 +62,66 @@ public:
     /// on starting file loading
     virtual void OnLoadFileStart( lString16 filename )
     {
-		CRLog::info("DocViewCallback::OnLoadFileStart() called");
     	_env->CallVoidMethod(_obj, _OnLoadFileStart, _env.toJavaString(filename));
     }
     /// format detection finished
     virtual void OnLoadFileFormatDetected( doc_format_t fileFormat )
     {
-		CRLog::info("DocViewCallback::OnLoadFileFormatDetected() called");
     	jobject e = _env.enumByNativeId("org/coolreader/crengine/DocumentFormat", (int)fileFormat);
     	jstring css = (jstring)_env->CallObjectMethod(_obj, _OnLoadFileFormatDetected, e);
     	if ( css ) {
     		lString16 s = _env.fromJavaString(css);
-    		CRLog::info("OnLoadFileFormatDetected: setting CSS for format %d", (int)fileFormat);
     		_docview->setStyleSheet( UnicodeToUtf8(s) );
     	}
     }
     /// file loading is finished successfully - drawCoveTo() may be called there
     virtual void OnLoadFileEnd()
     {
-		CRLog::info("DocViewCallback::OnLoadFileEnd() called");
     	_env->CallVoidMethod(_obj, _OnLoadFileEnd);
     }
     /// first page is loaded from file an can be formatted for preview
     virtual void OnLoadFileFirstPagesReady()
     {
-		CRLog::info("DocViewCallback::OnLoadFileFirstPagesReady() called");
     	_env->CallVoidMethod(_obj, _OnLoadFileFirstPagesReady);
     }
     /// file progress indicator, called with values 0..100
     virtual void OnLoadFileProgress( int percent )
     {
-		CRLog::info("DocViewCallback::OnLoadFileProgress() called");
     	jboolean res = _env->CallBooleanMethod(_obj, _OnLoadFileProgress, (jint)(percent*100));
     }
     /// document formatting started
     virtual void OnFormatStart()
     {
-		CRLog::info("DocViewCallback::OnFormatStart() called");
     	_env->CallVoidMethod(_obj, _OnFormatStart);
     }
     /// document formatting finished
     virtual void OnFormatEnd()
     {
-		CRLog::info("DocViewCallback::OnFormatEnd() called");
     	_env->CallVoidMethod(_obj, _OnFormatEnd);
     }
     /// format progress, called with values 0..100
     virtual void OnFormatProgress( int percent )
     {
-		CRLog::info("DocViewCallback::OnFormatProgress() called");
     	jboolean res = _env->CallBooleanMethod(_obj, _OnFormatProgress, (jint)(percent*100));
     }
     /// format progress, called with values 0..100
     virtual void OnExportProgress( int percent )
     {
-		CRLog::info("DocViewCallback::OnExportProgress() called");
     	jboolean res = _env->CallBooleanMethod(_obj, _OnExportProgress, (jint)(percent*100));
     }
     /// file load finiished with error
     virtual void OnLoadFileError( lString16 message )
     {
-		CRLog::info("DocViewCallback::OnLoadFileError() called");
     	_env->CallVoidMethod(_obj, _OnLoadFileError, _env.toJavaString(message));
     }
     /// Override to handle external links
     virtual void OnExternalLink( lString16 url, ldomNode * node )
     {
-		CRLog::info("DocViewCallback::OnExternalLink() called");
     	lString16 path = ldomXPointer(node,0).toString();
     	_env->CallVoidMethod(_obj, _OnExternalLink, _env.toJavaString(url), _env.toJavaString(path));
     }
     virtual void OnImageCacheClear()
     {
-		//CRLog::info("DocViewCallback::OnImageCacheClear() called");
     	_env->CallVoidMethod(_obj, _OnImageCacheClear);
     }
 
@@ -169,7 +155,6 @@ static void replaceColor( char * str, lUInt32 color )
 
 static LVRefVec<LVImageSource> getBatteryIcons( lUInt32 color, int size = 28)
 {
-	CRLog::debug("Making list of Battery icon bitmats");
 
 	#include "battery_icons.h"
     lUInt32 cl1 = 0x00000000|(color&0xFFFFFF);
@@ -834,32 +819,25 @@ DocViewNative::DocViewNative()
 static DocViewNative * getNative(JNIEnv * env, jobject _this)
 {
 	if (!gNativeObjectID) {
-		CRLog::error("gNativeObjectID is not defined");
 	    jclass rvClass = env->FindClass("org/coolreader/crengine/DocView");
 	    gNativeObjectID = env->GetFieldID(rvClass, "mNativeObject", "J");
 	    if (!gNativeObjectID)
 	    	return NULL;
 	}
 	DocViewNative * res = (DocViewNative *)env->GetLongField(_this, gNativeObjectID);
-	if (res == NULL)
-		CRLog::error("Native DocView is NULL");
 	return res;
 }
 
 bool DocViewNative::loadDocument( lString16 filename )
 {
-	CRLog::info("Loading document %s", LCSTR(filename));
-	bool res = _docview->LoadDocument(filename.c_str());
-	CRLog::info("Document %s is loaded %s", LCSTR(filename), (res?"successfully":"with error"));
+    bool res = _docview->LoadDocument(filename.c_str());
     return res;
 }
 
 bool DocViewNative::openRecentBook()
 {
-	CRLog::debug("DocViewNative::openRecentBook()");
 	int index = 0;
 	if ( _docview->isDocumentOpened() ) {
-		CRLog::debug("DocViewNative::openRecentBook() : saving previous document state");
 		_docview->swapToCache();
         _docview->getDocument()->updateMap();
 	    _docview->savePosition();
@@ -867,21 +845,15 @@ bool DocViewNative::openRecentBook()
 	    index = 1;
 	}
     LVPtrVector<CRFileHistRecord> & files = _docview->getHistory()->getRecords();
-    CRLog::info("DocViewNative::openRecentBook() : %d files found in history, startIndex=%d", files.length(), index);
     if ( index < files.length() ) {
         CRFileHistRecord * file = files.get( index );
         lString16 fn = file->getFilePathName();
-        CRLog::info("DocViewNative::openRecentBook() : checking file %s", LCSTR(fn));
         // TODO: check error
         if ( LVFileExists(fn) ) {
             return loadDocument( fn );
         } else {
-        	CRLog::error("file %s doesn't exist", LCSTR(fn));
         	return false;
         }
-        //_docview->swapToCache();
-    } else {
-        CRLog::info("DocViewNative::openRecentBook() : no recent book found in history");
     }
     return false;
 }
@@ -942,10 +914,7 @@ bool DocViewNative::findText( lString16 pattern, int origin, bool reverse, bool 
             start = rc.bottom;
         }
     }
-    CRLog::debug("CRViewDialog::findText: Current page: %d .. %d", rc.top, rc.bottom);
-    CRLog::debug("CRViewDialog::findText: searching for text '%s' from %d to %d origin %d", LCSTR(pattern), start, end, origin );
     if ( _docview->getDocument()->findText( pattern, caseInsensitive, reverse, start, end, words, 200, pageHeight ) ) {
-        CRLog::debug("CRViewDialog::findText: pattern found");
         _docview->clearSelection();
         _docview->selectWords( words );
         ldomMarkedRangeList * ranges = _docview->getMarkedRanges();
@@ -957,7 +926,6 @@ bool DocViewNative::findText( lString16 pattern, int origin, bool reverse, bool 
         }
         return true;
     }
-    CRLog::debug("CRViewDialog::findText: pattern not found");
     return false;
 }
 
@@ -970,20 +938,13 @@ bool DocViewNative::loadHistory( lString16 filename )
 		historyFileName = filename;
     historyFileName = filename;
     if ( historyFileName.empty() ) {
-    	CRLog::error("No history file name specified");
     	return false;
     }
-	CRLog::info("Trying to load history from file %s", LCSTR(historyFileName));
     LVStreamRef stream = LVOpenFileStream(historyFileName.c_str(), LVOM_READ);
     if ( stream.isNull() ) {
-    	CRLog::error("Cannot open file %s", LCSTR(historyFileName));
     	return false;
     }
     bool res = hist->loadFromStream( stream );
-    if ( res )
-    	CRLog::info("%d items found", hist->getRecords().length());
-    else
-    	CRLog::error("Cannot read history file content");
     return res;
 }
 
@@ -994,14 +955,11 @@ bool DocViewNative::saveHistory( lString16 filename )
     if ( historyFileName.empty() )
     	return false;
 	if ( _docview->isDocumentOpened() ) {
-		CRLog::debug("DocViewNative::saveHistory() : saving position");
 	    _docview->savePosition();
 	}
-	CRLog::info("Trying to save history to file %s", LCSTR(historyFileName));
     CRFileHist * hist = _docview->getHistory();
     LVStreamRef stream = LVOpenFileStream(historyFileName.c_str(), LVOM_WRITE);
     if ( stream.isNull() ) {
-    	CRLog::error("Cannot create file %s for writing", LCSTR(historyFileName));
     	return false;
     }
     if ( _docview->isDocumentOpened() )
@@ -1044,9 +1002,6 @@ int DocViewNative::doCommand( int cmd, int param )
 JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_createInternal
   (JNIEnv * env, jobject _this)
 {
-	CRLog::info("******************************************************************");
-	CRLog::info("createInternal: Creating new RenderView");
-	CRLog::info("******************************************************************");
     jclass rvClass = env->FindClass("org/coolreader/crengine/DocView");
     gNativeObjectID = env->GetFieldID(rvClass, "mNativeObject", "J");
     DocViewNative * obj = new DocViewNative();
@@ -1064,16 +1019,11 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_destroyInternal
 {
     DocViewNative * p = getNative(env, view);
     if ( p!=NULL ) {
-    	CRLog::info("******************************************************************");
-		CRLog::info("Destroying RenderView");
-		CRLog::info("******************************************************************");
     	delete p;
 	    jclass rvClass = env->FindClass("org/coolreader/crengine/DocView");
 	    gNativeObjectID = env->GetFieldID(rvClass, "mNativeObject", "J");
 	    env->SetLongField(view, gNativeObjectID, 0);
 	    gNativeObjectID = 0;
-	} else {
-		CRLog::error("RenderView is already destroyed");
 	}
 }
 
@@ -1085,16 +1035,11 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_destroyInternal
 JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_getPageImageInternal
   (JNIEnv * env, jobject view, jobject bitmap, jint bpp)
 {
-    CRLog::trace("getPageImageInternal entered : bpp=%d", bpp);
     DocViewNative * p = getNative(env, view);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
-    //CRLog::info("Initialize callback");
 	DocViewCallback callback( env, p->_docview, view );	
-    //CRLog::info("Initialized callback");
-    //CRLog::trace("getPageImageInternal calling bitmap->lock");
 	LVDrawBuf * drawbuf = BitmapAccessorInterface::getInstance()->lock(env, bitmap);
 	if ( drawbuf!=NULL ) {
 		if (bpp >= 16) {
@@ -1105,12 +1050,8 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_getPageImageInternal
 			p->_docview->Draw(grayBuf);
 			grayBuf.DrawTo(drawbuf, 0, 0, 0, NULL);
 		}
-	    //CRLog::trace("getPageImageInternal calling bitmap->unlock");
 		BitmapAccessorInterface::getInstance()->unlock(env, bitmap, drawbuf);
-	} else {
-		CRLog::error("bitmap accessor is invalid");
 	}
-    //CRLog::trace("getPageImageInternal exiting");
 }
 
 /*
@@ -1121,11 +1062,9 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_getPageImageInternal
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_checkImageInternal
   (JNIEnv * _env, jobject view, jint x, jint y, jobject imageInfo)
 {
-    //CRLog::trace("checkImageInternal entered");
-	CRJNIEnv env(_env);
+    CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, view);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
     int dx, dy;
@@ -1155,19 +1094,16 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_checkBookmarkInt
 	CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, view);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
     CRObjectAccessor acc(_env, bmk);
-    //CRLog::trace("checkBookmarkInternal(%d, %d)", x, y);
     CRBookmark * found = p->_docview->findBookmarkByPoint(lvPoint(x, y));
     if (!found)
 		return JNI_FALSE;
-    //CRLog::trace("checkBookmarkInternal - found bookmark of type %d", found->getType());
     CRIntField(acc,"type").set(found->getType());
     CRStringField(acc,"startPos").set(found->getStartPos());
     CRStringField(acc,"endPos").set(found->getEndPos());
-	return JNI_TRUE;
+    return JNI_TRUE;
 }
 
 
@@ -1179,11 +1115,9 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_checkBookmarkInt
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_drawImageInternal
   (JNIEnv * _env, jobject view, jobject bitmap, jint bpp, jobject imageInfo)
 {
-    CRLog::trace("checkImageInternal entered");
-	CRJNIEnv env(_env);
+    CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, view);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
     CRObjectAccessor acc(_env, imageInfo);
@@ -1225,10 +1159,7 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_drawImageInterna
 			p->drawIcon(&grayBuf, zoomOutRect, rotation ? 2 : 1);
 			grayBuf.DrawTo(drawbuf, 0, 0, 0, NULL);
 		}
-	    //CRLog::trace("getPageImageInternal calling bitmap->unlock");
 		BitmapAccessorInterface::getInstance()->unlock(_env, bitmap, drawbuf);
-	} else {
-		CRLog::error("bitmap accessor is invalid");
 	}
 	return res ? JNI_TRUE : JNI_FALSE;
 }
@@ -1241,10 +1172,8 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_drawImageInterna
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_closeImageInternal
   (JNIEnv * env, jobject view)
 {
-    CRLog::trace("checkImageInternal entered");
     DocViewNative * p = getNative(env, view);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
 	return p->closeImage() ? JNI_TRUE : JNI_FALSE;
@@ -1261,7 +1190,6 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_loadDocumentInte
 	CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
 	DocViewCallback callback( _env, p->_docview, _this );
@@ -1278,11 +1206,9 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_loadDocumentInte
 JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getSettingsInternal
   (JNIEnv * _env, jobject _this)
 {
-	CRLog::trace("DocView_getSettingsInternal");
 	CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return NULL;
     }
 	CRPropRef props = p->_docview->propsGetCurrent();
@@ -1299,24 +1225,18 @@ JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getSettingsIntern
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_applySettingsInternal
   (JNIEnv * _env, jobject _this, jobject _props)
 {
-	CRLog::trace("DocView_applySettingsInternal");
-	CRJNIEnv env(_env);
+    CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
-	DocViewCallback callback( _env, p->_docview, _this );
-	CRPropRef props = env.fromJavaProperties(_props);
-	CRPropRef oldProps = p->_docview->propsGetCurrent();
-	p->_docview->propsUpdateDefaults( props );
-	//bool oldNightMode = oldProps->getBoolDef(PROP_NIGHT_MODE, false);
-	//bool newNightMode = props->getBoolDef(PROP_NIGHT_MODE, false);
-	//CRLog::debug("Text colors: %x->%x, %x->%x", oldTextColor, newTextColor, oldStatusColor, newStatusColor);
-	CRPropRef diff = oldProps ^ props;
-	CRPropRef unknown = p->_docview->propsApply(props); //diff
-	p->updateBatteryIcons();
-	CRLog::trace("DocView_applySettingsInternal - done");
+    DocViewCallback callback( _env, p->_docview, _this );
+    CRPropRef props = env.fromJavaProperties(_props);
+    CRPropRef oldProps = p->_docview->propsGetCurrent();
+    p->_docview->propsUpdateDefaults( props );
+    CRPropRef diff = oldProps ^ props;
+    CRPropRef unknown = p->_docview->propsApply(props); //diff
+    p->updateBatteryIcons();
     return JNI_TRUE;
 }
 #if 0
@@ -1360,7 +1280,6 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_setStylesheetInterna
 	CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _view);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
 	DocViewCallback callback( _env, p->_docview, _view );
@@ -1376,18 +1295,14 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_setStylesheetInterna
 JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_resizeInternal
   (JNIEnv * _env, jobject _this, jint dx, jint dy)
 {
-	CRJNIEnv env(_env);
-	CRLog::debug("resizeInternal(%d, %d) is called", dx, dy);
+    CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
 	DocViewCallback callback( _env, p->_docview, _this );
     p->_docview->Resize(dx, dy);
     p->updateBatteryIcons();
-    //p->_docview->checkRender();
-    CRLog::trace("resizeInternal() is finished");
 }  
   
 
@@ -1401,14 +1316,12 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_doCommandInterna
 {
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
 	DocViewCallback callback( _env, p->_docview, _this );	
     if ( cmd>=READERVIEW_DCMD_START && cmd<=READERVIEW_DCMD_END) {
     	return p->doCommand(cmd, param)?JNI_TRUE:JNI_FALSE;
     }
-    //CRLog::trace("doCommandInternal(%d, %d) -- passing to LVDocView", cmd, param);
     return p->_docview->doCommand((LVDocCmd)cmd, param) ? JNI_TRUE : JNI_FALSE;
 }
 
@@ -1420,10 +1333,9 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_doCommandInterna
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_isRenderedInternal
 (JNIEnv *_env, jobject _this)
 {
-	CRJNIEnv env(_env);
+    CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
 	if (!p->_docview->isDocumentOpened())
@@ -1445,7 +1357,6 @@ JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getCurrentPageBoo
 		return NULL;
 	DocViewCallback callback( _env, p->_docview, _this );
 	
-	CRLog::trace("getCurrentPageBookmarkInternal: calling getBookmark()");
 	ldomXPointer ptr = p->_docview->getBookmark();
 	if ( ptr.isNull() )
 		return JNI_FALSE;
@@ -1492,10 +1403,9 @@ JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getCurrentPageBoo
 JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_updateBookInfoInternal
   (JNIEnv * _env, jobject _this, jobject _info)
 {
-	CRJNIEnv env(_env);
+    CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
 	if ( !p->_docview->isDocumentOpened() )
@@ -1528,10 +1438,9 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_updateBookInfoIntern
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_goToPositionInternal
   (JNIEnv * _env, jobject _this, jstring jstr, jboolean saveToHistory)
 {
-	CRJNIEnv env(_env);
+    CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
 	if ( !p->_docview->isDocumentOpened() )
@@ -1558,7 +1467,6 @@ JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getPositionPropsI
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return NULL;
     }
 
@@ -1567,10 +1475,9 @@ JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getPositionPropsI
     jobject obj = _env->NewObject(cls, mid);
 
     if (!p->_docview->isDocumentOpened()) {
-		CRLog::debug("getPositionPropsInternal: document is not opened");
-		return obj;
-	}
-	DocViewCallback callback( _env, p->_docview, _this );
+	return obj;
+    }
+    DocViewCallback callback( _env, p->_docview, _this );
     lString16 str = env.fromJavaString(_path);
     ldomXPointer bm;
     bool useCurPos = false; // use current Y position for scroll view mode
@@ -1581,9 +1488,6 @@ JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getPositionPropsI
         useCurPos = p->_docview->getViewMode()==DVM_SCROLL;
         if ( !useCurPos ) {
             bm = p->_docview->getBookmark();
-            if ( bm.isNull() ) {
-                CRLog::error("getPositionPropsInternal: Cannot get current position bookmark");
-            }
         }
     }
     CRObjectAccessor v(_env, obj);
@@ -1613,7 +1517,6 @@ JNIEXPORT jobject JNICALL Java_org_coolreader_crengine_DocView_getTOCInternal
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return NULL;
     }
 	if ( !p->_docview->isDocumentOpened() )
@@ -1634,7 +1537,6 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_clearSelectionIntern
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
     if ( !p->_docview->isDocumentOpened() )
@@ -1653,7 +1555,6 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_findTextInternal
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
     if ( !p->_docview->isDocumentOpened() )
@@ -1672,7 +1573,6 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_setBatteryStateInter
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
     p->_docview->setBatteryState(state);
@@ -1689,7 +1589,6 @@ JNIEXPORT jint JNICALL Java_org_coolreader_crengine_DocView_swapToCacheInternal
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return 0;
     }
     CRTimerUtil timeout(60000); // 1 minute, can be cancelled by Engine.suspendContinuousOperationInternal()
@@ -1709,17 +1608,10 @@ JNIEXPORT jbyteArray JNICALL Java_org_coolreader_crengine_DocView_getCoverPageDa
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return NULL;
     }
-//	CRLog::trace("getCoverPageDataInternal() : requesting cover image stream");
     LVStreamRef stream = p->_docview->getCoverPageImageStream();
-//	CRLog::trace("getCoverPageDataInternal() : converting stream to byte array");
     jbyteArray array = env.streamToJByteArray(stream);
-    if ( array!=NULL )
-    	CRLog::debug("getCoverPageDataInternal() : returned cover page array");
-    else
-    	CRLog::debug("getCoverPageDataInternal() : cover page data not found");
     return array;
 }
 
@@ -1734,7 +1626,6 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_setPageBackgroundTex
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
     LVImageSourceRef img;
@@ -1758,7 +1649,6 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_updateSelectionInter
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
     CRObjectAccessor sel(_env, _sel);
@@ -1782,13 +1672,10 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_updateSelectionInter
         r.sort();
 		if ( !r.getStart().isVisibleWordStart() )
 			r.getStart().prevVisibleWordStart();
-		//lString16 start = r.getStart().toString();
 		if ( !r.getEnd().isVisibleWordEnd() )
 			r.getEnd().nextVisibleWordEnd();
         if ( r.isNull() )
             return;
-        //lString16 end = r.getEnd().toString();
-        //CRLog::debug("Range: %s - %s", UnicodeToUtf8(start).c_str(), UnicodeToUtf8(end).c_str());
         r.setFlags(1);
         p->_docview->selectRange( r );
         int page = p->_docview->getBookmarkPage(startp);
@@ -1820,7 +1707,6 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_DocView_moveSelectionInt
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return false;
     }
     CRObjectAccessor sel(_env, _sel);
@@ -2023,7 +1909,6 @@ JNIEXPORT jstring JNICALL Java_org_coolreader_crengine_DocView_checkLinkInternal
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return NULL;
     }
     lString16 link;
@@ -2046,7 +1931,6 @@ JNIEXPORT jint JNICALL Java_org_coolreader_crengine_DocView_goLinkInternal
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return 0;
     }
     lString16 link = env.fromJavaString(_link);
@@ -2064,14 +1948,13 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_DocView_hilightBookmarksInte
     CRJNIEnv env(_env);
     DocViewNative * p = getNative(_env, _this);
     if (!p) {
-    	CRLog::error("Cannot get native view");
     	return;
     }
     LVPtrVector<CRBookmark> bookmarks;
     if (list) {
     	int len = _env->GetArrayLength(list);
     	for (int i=0; i<len; i++) {
-    		jobject obj = _env->GetObjectArrayElement(list, i);
+            jobject obj = _env->GetObjectArrayElement(list, i);
     	    CRObjectAccessor bmk(_env, obj);
     	    CRStringField startPos(bmk, "startPos");
     	    CRStringField endPos(bmk, "endPos");
@@ -2104,10 +1987,7 @@ void DocViewNative::updateBatteryIcons() {
 	if ( _batteryIconColor != batteryColor || _batteryIconSize != newSize ) { //oldNightMode!=newNightMode
 		_batteryIconColor = batteryColor;
 		_batteryIconSize = newSize;
-		//CRLog::debug("%x->%x, %x->%x: Setting Battery icon color = #%06x", oldTextColor, newTextColor, oldStatusColor, newStatusColor, batteryColor);
 	    LVRefVec<LVImageSource> icons = getBatteryIcons(_batteryIconColor, _batteryIconSize);
-		//CRLog::debug("Setting list of Battery icon bitmats");
 	   _docview->setBatteryIcons( icons );
-		//CRLog::debug("Setting list of Battery icon bitmats - done");
 	}
 }

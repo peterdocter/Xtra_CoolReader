@@ -59,32 +59,6 @@ static lString16 getDateTimeString( time_t t )
     return Utf8ToUnicode( lString8( str ) );
 }
 
-#if 0
-static lString16 extractDocSeriesReverse( ldomDocument * doc, int & seriesNumber )
-{
-	seriesNumber = 0;
-    lString16 res;
-    ldomXPointer p = doc->createXPointer(L"/FictionBook/description/title-info/sequence");
-    if ( p.isNull() )
-        return res;
-    ldomNode * series = p.getNode();
-    if ( series ) {
-        lString16 sname = series->getAttributeValue( attr_name );
-        lString16 snumber = series->getAttributeValue( attr_number );
-        if ( !sname.empty() ) {
-            res << L"(";
-            if ( !snumber.empty() ) {
-                res << L"#" << snumber << L" ";
-                seriesNumber = snumber.atoi();
-            }
-            res << sname;
-            res << L")";
-        }
-    }
-    return res;
-}
-#endif
-
 class BookProperties
 {
 public:
@@ -157,8 +131,6 @@ static bool GetEPUBBookProperties(const char *name, LVStreamRef stream, BookProp
 
 static bool GetBookProperties(const char *name,  BookProperties * pBookProps)
 {
-    CRLog::trace("GetBookProperties( %s )", name);
-
     // check archieve
     lString16 arcPathName;
     lString16 arcItemPathName;
@@ -167,13 +139,10 @@ static bool GetBookProperties(const char *name,  BookProperties * pBookProps)
     // open stream
     LVStreamRef stream = LVOpenFileStream( (isArchiveFile ? arcPathName : Utf8ToUnicode(lString8(name))).c_str() , LVOM_READ);
     if (!stream) {
-        CRLog::error("cannot open file %s", name);
         return false;
     }
 
-
     if ( DetectEpubFormat( stream ) ) {
-        CRLog::trace("GetBookProperties() : epub format detected");
     	return GetEPUBBookProperties( name, stream, pBookProps );
     }
 
@@ -183,12 +152,10 @@ static bool GetBookProperties(const char *name,  BookProperties * pBookProps)
         int arcsize = (int)stream->GetSize();
         LVContainerRef container = LVOpenArchieve(stream);
         if ( container.isNull() ) {
-            CRLog::error( "Cannot read archive contents from %s", LCSTR(arcPathName) );
             return false;
         }
         stream = container->OpenStream(arcItemPathName.c_str(), LVOM_READ);
         if ( stream.isNull() ) {
-            CRLog::error( "Cannot open archive file item stream %s", LCSTR(lString16(name)) );
             return false;
         }
     }
@@ -208,22 +175,12 @@ static bool GetBookProperties(const char *name,  BookProperties * pBookProps)
     doc.setAttributeTypes( fb2_attr_table );
     doc.setNameSpaceTypes( fb2_ns_table );
     LVXMLParser parser( stream, &writer );
-    CRLog::trace( "checking format..." );
     if ( !parser.CheckFormat() ) {
         return false;
     }
-    CRLog::trace( "parsing..." );
     if ( !parser.Parse() ) {
         return false;
     }
-    CRLog::trace( "parsed" );
-    #if 0
-        char ofname[512];
-        sprintf(ofname, "%s.xml", name);
-        CRLog::trace("    writing to file %s", ofname);
-        LVStreamRef out = LVOpenFileStream(ofname, LVOM_WRITE);
-        doc.saveToStream(out, "utf16");
-    #endif
     lString16 authors = extractDocAuthors( &doc, lString16("|"), false );
     lString16 title = extractDocTitle( &doc );
     lString16 language = extractDocLanguage( &doc );
@@ -251,19 +208,17 @@ static bool GetBookProperties(const char *name,  BookProperties * pBookProps)
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_scanBookPropertiesInternal
   (JNIEnv * _env, jclass _engine, jobject _fileInfo)
 {
-	CRJNIEnv env(_env);
 	jclass objclass = env->GetObjectClass(_fileInfo);
 	jfieldID fid = env->GetFieldID(objclass, "pathname", "Ljava/lang/String;");
 	lString16 filename = env.fromJavaString( (jstring)env->GetObjectField(_fileInfo, fid) );
-    fid = env->GetFieldID(objclass, "arcname", "Ljava/lang/String;");
-    lString16 arcname = env.fromJavaString( (jstring)env->GetObjectField(_fileInfo, fid) );
+        fid = env->GetFieldID(objclass, "arcname", "Ljava/lang/String;");
+        lString16 arcname = env.fromJavaString( (jstring)env->GetObjectField(_fileInfo, fid) );
 	if ( filename.empty() )
 		return JNI_FALSE;
 	if ( !arcname.empty() )
        filename = arcname + "@/" + filename;
 
 	BookProperties props;
-	CRLog::debug("Looking for properties of file %s", LCSTR(filename));
 	bool res = GetBookProperties(LCSTR(filename),  &props);
 	if ( !res )
 		return JNI_FALSE;
@@ -289,8 +244,6 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_scanBookPropertie
 
 void drawBookCoverInternal(JNIEnv * _env, jclass _engine, jobject bitmap, jbyteArray _data, jstring _fontFace, jstring _title, jstring _authors, jstring _seriesName, jint seriesNumber, jint bpp)
 {
-	CRJNIEnv env(_env);
-	CRLog::debug("drawBookCoverInternal called");
 	lString8 fontFace = UnicodeToUtf8(env.fromJavaString(_fontFace));
 	lString16 title = env.fromJavaString(_title);
 	lString16 authors = env.fromJavaString(_authors);
@@ -300,7 +253,6 @@ void drawBookCoverInternal(JNIEnv * _env, jclass _engine, jobject bitmap, jbyteA
 	if (drawbuf != NULL) {
 		LVImageSourceRef image;
 		if (_data != NULL && _env->GetArrayLength(_data) > 0) {
-			CRLog::debug("drawBookCoverInternal : cover image from array");
 			stream = env.jbyteArrayToStream(_data);
 			if (!stream.isNull())
 				image = LVCreateStreamImageSource(stream);
@@ -328,7 +280,6 @@ void drawBookCoverInternal(JNIEnv * _env, jclass _engine, jobject bitmap, jbyteA
 
 		if (bpp >= 16) {
 			// native color resolution
-			CRLog::debug("drawBookCoverInternal : calling LVDrawBookCover");
 			LVDrawBookCover(*drawbuf2, image, fontFace, title, authors, seriesName, seriesNumber);
 			image.Clear();
 		} else {
@@ -339,17 +290,12 @@ void drawBookCoverInternal(JNIEnv * _env, jclass _engine, jobject bitmap, jbyteA
 		}
 
 		if (factor > 1) {
-			CRLog::debug("drawBookCoverInternal : rescaling");
 			drawbuf->DrawRescaled(drawbuf2, 0, 0, drawbuf->GetWidth(), drawbuf->GetHeight(), 0);
 			delete drawbuf2;
 		}
 
-		//CRLog::trace("getPageImageInternal calling bitmap->unlock");
 		BitmapAccessorInterface::getInstance()->unlock(_env, bitmap, drawbuf);
-	} else {
-		CRLog::error("bitmap accessor is invalid");
 	}
-	CRLog::debug("drawBookCoverInternal finished");
 }
 
 /*
@@ -366,10 +312,8 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_Engine_drawBookCoverInternal
 jbyteArray scanBookCoverInternal
   (JNIEnv * _env, jclass _class, jstring _path)
 {
-	CRJNIEnv env(_env);
-	lString16 path = env.fromJavaString(_path);
-	CRLog::debug("scanBookCoverInternal(%s) called", LCSTR(path));
-	lString16 arcname, item;
+    lString16 path = env.fromJavaString(_path);
+    lString16 arcname, item;
     LVStreamRef res;
     jbyteArray array = NULL;
     LVContainerRef arc;
@@ -396,14 +340,12 @@ jbyteArray scanBookCoverInternal
 			}
 		}
 	} else {
-    	CRLog::debug("scanBookCoverInternal() : is archive, item=%s, arc=%d", LCSTR(item), LCSTR(arcname));
 		LVStreamRef arcstream = LVOpenFileStream(arcname.c_str(), LVOM_READ);
 		if (!arcstream.isNull()) {
 			arc = LVOpenArchieve(arcstream);
 			if (!arc.isNull()) {
 				LVStreamRef stream = arc->OpenStream(item.c_str(), LVOM_READ);
 				if (!stream.isNull()) {
-			    	CRLog::debug("scanBookCoverInternal() : archive stream opened ok, parsing");
 					res = GetFB2Coverpage(stream);
 					if (res.isNull()) {
 						doc_format_t fmt;
@@ -417,10 +359,6 @@ jbyteArray scanBookCoverInternal
 	}
 	if (!res.isNull())
 		array = env.streamToJByteArray(res);
-    if (array != NULL)
-    	CRLog::debug("scanBookCoverInternal() : returned cover page array");
-    else
-    	CRLog::debug("scanBookCoverInternal() : cover page data not found");
     return array;
 }
 
@@ -445,11 +383,9 @@ JNIEXPORT jbyteArray JNICALL Java_org_coolreader_crengine_Engine_scanBookCoverIn
 JNIEXPORT jobjectArray JNICALL Java_org_coolreader_crengine_Engine_getArchiveItemsInternal
   (JNIEnv * _env, jclass, jstring jarcName)
 {
-    CRJNIEnv env(_env);
     lString16 arcName = env.fromJavaString(jarcName);
     lString16Collection list;
     
-    //fontMan->getFaceList(list);
     LVStreamRef stream = LVOpenFileStream( arcName.c_str(), LVOM_READ );
     if ( !stream.isNull() ) {
         LVContainerRef arc = LVOpenArchieve(stream);
@@ -476,20 +412,14 @@ JNIEXPORT jobjectArray JNICALL Java_org_coolreader_crengine_Engine_getArchiveIte
 JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_setHyphenationMethod
   (JNIEnv * _env, jclass _engine, jint method, jbyteArray data)
 {
-	CRJNIEnv env(_env);
 	if ( method==0 ) {
-		CRLog::info("Selecting hyphenation method: Disabled");
 		return HyphMan::activateDictionary(lString16(HYPH_DICT_ID_NONE));
 	} else if ( method==1 ) {
-		CRLog::info("Selecting hyphenation method: Algoryphmic");
 		return HyphMan::activateDictionary(lString16(HYPH_DICT_ID_ALGORITHM));
 	} else {
-		CRLog::info("Selecting hyphenation method: Dictionary");
 		LVStreamRef stream = env.jbyteArrayToStream( data );
-		CRLog::debug("Stream is created from byte array, length=%d", (int)(stream.isNull()?0:stream->GetSize()));
 		bool res = HyphMan::activateDictionaryFromStream(stream);
 		if ( !res ) {
-			CRLog::error("Dictionary activation is failed: disabling hyphenation");
 			HyphMan::activateDictionary(lString16(HYPH_DICT_ID_NONE));
 			return false;
 		}
@@ -513,7 +443,6 @@ protected:
 		static char buffer[MAX_LOG_MSG_SIZE+1];
 		vsnprintf(buffer, MAX_LOG_MSG_SIZE, msg, args);
 		int level = ANDROID_LOG_DEBUG;
-		//LOGD("CRLog::log is called with LEVEL %s, pattern %s", lvl, msg);
 		if ( !strcmp(lvl, "FATAL") )
 			level = ANDROID_LOG_FATAL;
 		else if ( !strcmp(lvl, "ERROR") )
@@ -536,10 +465,6 @@ void cr3androidFatalErrorHandler(int errorCode, const char * errorText )
 {
 	LOGE("CoolReader Fatal Error #%d: %s", errorCode, errorText);
 	LOGASSERTFAILED("CoolReader Fatal Error", "CoolReader Fatal Error #%d: %s", errorCode, errorText);
-	//static char str[1001];
-	//snprintf(str, 1000, "CoolReader Fatal Error #%d: %s", errorCode, errorText);
-	//LOGE("CoolReader Fatal Error #%d: %s", errorCode, errorText);
-	//LOGASSERTFAILED(errorText, "CoolReader Fatal Error #%d: %s", errorCode, errorText);
 }
 
 /// set fatal error handler
@@ -552,32 +477,17 @@ jboolean initInternal(JNIEnv * penv, jclass obj, jobjectArray fontArray) {
 	// to catch crashes and remove current cache file on crash (SIGSEGV etc.)
 	crSetSignalHandler();
 
-	LOGI("initInternal called");
 	// set fatal error handler
 	crSetFatalErrorHandler( &cr3androidFatalErrorHandler );
-	LOGD("Redirecting CDRLog to Android");
-	CRLog::setLogger( new JNICDRLogger() );
-	CRLog::setLogLevel( CRLog::LL_TRACE );
-	CRLog::info("CREngine log redirected");
-	CRLog::info("CRENGINE version %s %s", CR_ENGINE_VERSION, CR_ENGINE_BUILD_DATE);
-	
-	CRLog::info("initializing hyphenation manager");
-    HyphMan::initDictionaries(lString16::empty_str); //don't look for dictionaries
+        HyphMan::initDictionaries(lString16::empty_str); //don't look for dictionaries
 	HyphMan::activateDictionary(lString16(HYPH_DICT_ID_NONE));
-	CRLog::info("creating font manager");
-    InitFontManager(lString8::empty_str);
-	CRLog::debug("converting fonts array: %d items", (int)env->GetArrayLength(fontArray));
+        InitFontManager(lString8::empty_str);
 	lString16Collection fonts;
 	env.fromJavaStringArray(fontArray, fonts);
 	int len = fonts.length();
-	CRLog::debug("registering fonts: %d fonts in list", len);
 	for ( int i=0; i<len; i++ ) {
 		lString8 fontName = UnicodeToUtf8(fonts[i]);
-		CRLog::debug("registering font %s", fontName.c_str());
-		if ( !fontMan->RegisterFont( fontName ) )
-			CRLog::error("cannot load font %s", fontName.c_str());
 	}
-    CRLog::info("%d fonts registered", fontMan->GetFontCount());
 	return fontMan->GetFontCount() ? JNI_TRUE : JNI_FALSE;
 }
 
@@ -602,7 +512,6 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_initInternal
 JNIEXPORT void JNICALL Java_org_coolreader_crengine_Engine_uninitInternal
   (JNIEnv *, jclass)
 {
-	LOGI("uninitInternal called");
 	HyphMan::uninit();
 	ShutdownFontManager();
 	CRLog::setLogger(NULL);
@@ -616,7 +525,6 @@ JNIEXPORT void JNICALL Java_org_coolreader_crengine_Engine_uninitInternal
 JNIEXPORT jobjectArray JNICALL Java_org_coolreader_crengine_Engine_getFontFaceListInternal
   (JNIEnv * penv, jclass obj)
 {
-	LOGI("getFontFaceListInternal called");
 	CRJNIEnv env(penv);
 	lString16Collection list;
 	COFFEE_TRY_JNI(penv, fontMan->getFaceList(list));
@@ -645,14 +553,11 @@ JNIEXPORT jboolean JNICALL Java_org_coolreader_crengine_Engine_setCacheDirectory
 JNIEXPORT jstring JNICALL Java_org_coolreader_crengine_Engine_isLink
   (JNIEnv * env, jclass obj, jstring pathname)
 {
-	//CRLog::trace("isLink : enter");
 	if (!pathname)
 		return NULL;
-	//CRLog::trace("isLink : pathname is not null");
 	int res = JNI_FALSE;
 	jboolean iscopy;
 	const char * s = env->GetStringUTFChars(pathname, &iscopy);
-	//CRLog::trace("isLink : read utf from pathname");
 	struct stat st;
 	lString8 path;
 	if ( !lstat( s, &st) ) {
@@ -665,9 +570,7 @@ JNIEXPORT jstring JNICALL Java_org_coolreader_crengine_Engine_isLink
 			}
 		}
 	}
-	//CRLog::trace("isLink : releasing utf pathname");
 	env->ReleaseStringUTFChars(pathname, s);
-	//CRLog::trace("isLink : returning");
 	return !path.empty() ? (jstring)env->NewGlobalRef(env->NewStringUTF(path.c_str())) : NULL;
 }
 
@@ -764,7 +667,6 @@ static int jniRegisterNativeMethods(JNIEnv* env, const char* className,
 {
     jclass clazz;
 
-    LOGV("Registering %s natives\n", className);
     clazz = env->FindClass(className);
     if (clazz == NULL) {
         LOGE("Native registration unable to find class '%s'\n", className);
@@ -785,19 +687,16 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
  
 #ifdef JNI_VERSION_1_6
     if (res==-1 && vm->GetEnv((void**) &env, JNI_VERSION_1_6) == JNI_OK) {
-        LOGI("JNI_OnLoad: JNI_VERSION_1_6\n");
    	    res = JNI_VERSION_1_6;
     }
 #endif
 #ifdef JNI_VERSION_1_4
     if (res==-1 && vm->GetEnv((void**) &env, JNI_VERSION_1_4) == JNI_OK) {
-        LOGI("JNI_OnLoad: JNI_VERSION_1_4\n");
    	    res = JNI_VERSION_1_4;
     }
 #endif
 #ifdef JNI_VERSION_1_2
     if (res==-1 && vm->GetEnv((void**) &env, JNI_VERSION_1_2) == JNI_OK) {
-        LOGI("JNI_OnLoad: JNI_VERSION_1_2\n");
    	    res = JNI_VERSION_1_2;
     }
 #endif
@@ -806,6 +705,5 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
  
     jniRegisterNativeMethods(env, "org/coolreader/crengine/Engine", sEngineMethods, sizeof(sEngineMethods)/sizeof(JNINativeMethod));
     jniRegisterNativeMethods(env, "org/coolreader/crengine/DocView", sDocViewMethods, sizeof(sDocViewMethods)/sizeof(JNINativeMethod));
-    LOGI("JNI_OnLoad: native methods are registered!\n");
     return res;
 }

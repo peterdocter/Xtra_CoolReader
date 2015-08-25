@@ -58,7 +58,6 @@ public class BookInfoEditDialog extends BaseDialog {
         setCanceledOnTouchOutside(true);
 
         super.onCreate();
-		L.v("OptionsDialog is created");
 	}
 	
 	class AuthorItem {
@@ -347,7 +346,6 @@ public class BookInfoEditDialog extends BaseDialog {
 	}
 	
 	private void save() {
-		L.d("BokoInfoEditDialog.save()");
 		
         FileInfo file = mBookInfo.getFileInfo();
         boolean modified = false;

@@ -18,7 +18,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class TOCDlg extends BaseDialog {
-	//CoolReader mCoolReader;
 	ReaderView mReaderView;
 	TOCItem mTOC;
 	ListView mListView;
@@ -110,7 +109,6 @@ public class TOCDlg extends BaseDialog {
 				TOCItem item = mItems.get(position);
 				boolean isCurrentItem = item==mCurrentPageItem;
 				if ( convertView==null ) {
-					//view = new TextView(getContext());
 					view = mInflater.inflate(isCurrentItem ? R.layout.toc_item_current : R.layout.toc_item, null);
 				} else {
 					view = (View)convertView;
@@ -164,8 +162,7 @@ public class TOCDlg extends BaseDialog {
 	public TOCDlg(BaseActivity coolReader, ReaderView readerView, TOCItem toc, int currentPage )
 	{
 		super(coolReader, coolReader.getResources().getString(R.string.win_title_toc), false, false);
-        setCancelable(true);
-//		this.mCoolReader = coolReader;
+                setCancelable(true);
 		this.mReaderView = readerView;
 		this.mTOC = toc;
 		this.mCurrentPage = currentPage;
@@ -217,7 +214,6 @@ public class TOCDlg extends BaseDialog {
 		}, new Runnable() {
 			@Override
 			public void run() {
-				// 
 				TOCDlg.this.dismiss();
 			}
 		});
@@ -230,7 +226,5 @@ public class TOCDlg extends BaseDialog {
 		expand( mTOC );
 		expand( mCurrentPageItem );
 	}
-	
-	
 
 }

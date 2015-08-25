@@ -64,11 +64,8 @@ public class SonyBookSelector
         String name = null;
         String src = "";
 
-        Log.d(packageTag, "getContentId: file name = " + filename);
-
         File f = new File(filename);
         if( !f.exists() ) {
-            Log.w(packageTag, "getContentId: file does not exist in fs - " + filename);
             return res;
         }
 
@@ -78,8 +75,6 @@ public class SonyBookSelector
         } catch( Exception e ) {
             Log.e(packageTag, "getContentId", e);
         }
-
-        Log.d(packageTag, "getContentId: canonical file name = " + fname);
 
         try {
             if( fname.startsWith(m_extsd) ) {
@@ -91,22 +86,14 @@ public class SonyBookSelector
             }
 
             if( name != null ) {
-                Log.d(packageTag, "getContentId: name = " + name);
                 Uri uri = Uri.parse("content://com.sony.drbd.ebook.provider/books");
                 cursor = m_activity.getContentResolver().query(uri, null, "file_path=? AND source_id=?", new String[] { name, src }, null);
                 if( cursor != null ) {
                     if( cursor.moveToFirst() ) {
                         res = cursor.getLong(cursor.getColumnIndex("_id"));
-                        Log.w(packageTag, "getContentId: id = " + res);
-                    } else {
-                        Log.w(packageTag, "getContentId: database error - " + fname);
                     }
                     cursor.close();
-                } else {
-                    Log.w(packageTag, "getContentId: database error - " + fname);
                 }
-            } else {
-                Log.w(packageTag, "getContentId: wrong file requested - " + fname);
             }
         } catch( Exception e ) {
             if( cursor != null ) {
@@ -130,10 +117,8 @@ public class SonyBookSelector
             Intent intent = new Intent("com.sony.drbd.ebook.mediascanner.MediaScannerService");
             Bundle bundle = new Bundle();
             bundle.putString("file_path", fname);
-            // bundle.putString("mime_type", "");
             intent.putExtras(bundle);
             m_activity.startService(intent);
-            Log.d(packageTag, "notifyScanner: " + fname);
         }
     }
 
@@ -144,7 +129,6 @@ public class SonyBookSelector
         ContentValues contentvalues = new ContentValues();
         contentvalues.put("reading_time", Long.valueOf(System.currentTimeMillis()));
         m_activity.getContentResolver().update(uri, contentvalues, null, null);
-        Log.d(packageTag, "setReadingTime: id = " + id);
     }
 
     public void requestBookSelection(long id)
@@ -152,6 +136,5 @@ public class SonyBookSelector
         Intent intent = new Intent("android.intent.action.book_selected");
         intent.putExtra("_id", id);
         m_activity.sendBroadcast(intent);
-        Log.d(packageTag, "requestBookSelection: id = " + id);
     }
 }

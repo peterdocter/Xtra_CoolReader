@@ -28,25 +28,16 @@ public class FindNextDlg {
 	static public void showDialog( BaseActivity coolReader, ReaderView readerView, final String pattern, final boolean caseInsensitive )
 	{
 		FindNextDlg dlg = new FindNextDlg(coolReader, readerView, pattern, caseInsensitive);
-		//dlg.mWindow.update(dlg.mAnchor, width, height)
-		Log.d("cr3", "popup: " + dlg.mWindow.getWidth() + "x" + dlg.mWindow.getHeight());
-		//dlg.update();
-		//dlg.showAtLocation(readerView, Gravity.LEFT|Gravity.TOP, readerView.getLeft()+50, readerView.getTop()+50);
-		//dlg.showAsDropDown(readerView);
-		//dlg.update();
 	}
 	public FindNextDlg( BaseActivity coolReader, ReaderView readerView, final String pattern, final boolean caseInsensitive )
 	{
 		this.pattern = pattern;
 		this.caseInsensitive = caseInsensitive;
-		//mCoolReader = coolReader;
 		mReaderView = readerView;
 		mAnchor = readerView.getSurface();
 
 		View panel = (LayoutInflater.from(coolReader.getApplicationContext()).inflate(R.layout.search_popup, null));
 		panel.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		
-		//mReaderView.getS
 		
 		mWindow = new PopupWindow( mAnchor.getContext() );
 		mWindow.setTouchInterceptor(new OnTouchListener() {
@@ -61,7 +52,6 @@ public class FindNextDlg {
 				return false;
 			}
 		});
-		//super(panel);
 		mPanel = panel;
 		mPanel.findViewById(R.id.search_btn_prev).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -124,12 +114,8 @@ public class FindNextDlg {
 		});
 		
 		mWindow.setBackgroundDrawable(new BitmapDrawable());
-		//mWindow.setAnimationStyle(android.R.style.Animation_Toast);
 		mWindow.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
 		mWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-//		setWidth(panel.getWidth());
-//		setHeight(panel.getHeight());
-		
 		mWindow.setFocusable(true);
 		mWindow.setTouchable(true);
 		mWindow.setOutsideTouchable(true);
@@ -138,14 +124,8 @@ public class FindNextDlg {
 		
 		int [] location = new int[2];
 		mAnchor.getLocationOnScreen(location);
-		//mWindow.update(location[0], location[1], mPanel.getWidth(), mPanel.getHeight() );
-		//mWindow.setWidth(mPanel.getWidth());
-		//mWindow.setHeight(mPanel.getHeight());
 
 		mWindow.showAtLocation(mAnchor, Gravity.TOP | Gravity.CENTER_HORIZONTAL, location[0], location[1] + mAnchor.getHeight() - mPanel.getHeight());
-//		if ( mWindow.isShowing() )
-//			mWindow.update(mAnchor, 50, 50);
-		//dlg.mWindow.showAsDropDown(dlg.mAnchor);
 	
 	}
 	
