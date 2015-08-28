@@ -92,10 +92,8 @@ public class CoolReader extends BaseActivity
 
 		mEngine = Engine.getInstance(this);
 
-		//requestWindowFeature(Window.FEATURE_NO_TITLE);
-    	
 		//==========================================
-    	// Battery state listener
+                // Battery state listener
 		intentReceiver = new BroadcastReceiver() {
 
 			@Override
@@ -117,11 +115,11 @@ public class CoolReader extends BaseActivity
 
 		//==========================================
 		// Donations related code
+		
 		try {
-			
 			mDonationService = new CRDonationService(this);
-			mDonationService.bind();
-    		SharedPreferences pref = getSharedPreferences(DONATIONS_PREF_FILE, 0);
+//			mDonationService.bind();
+                        SharedPreferences pref = getSharedPreferences(DONATIONS_PREF_FILE, 0);
     		try {
     			mTotalDonations = pref.getFloat(DONATIONS_PREF_TOTAL_AMOUNT, 0.0f);
     		} catch (Exception e) {
@@ -134,12 +132,13 @@ public class CoolReader extends BaseActivity
 		N2EpdController.n2MainActivity = this;
         
 		showRootWindow();
+            
 		
     }
 
 	public final static boolean CLOSE_BOOK_ON_STOP = false;
 	
-    boolean mDestroyed = false;
+        boolean mDestroyed = false;
 	@Override
 	protected void onDestroy() {
 
@@ -167,7 +166,6 @@ public class CoolReader extends BaseActivity
 		// Donations support code
 		if (mDonationService != null)
 			mDonationService.unbind();
-
 		if (mReaderView != null) {
 			mReaderView.destroy();
 		}
@@ -271,8 +269,6 @@ public class CoolReader extends BaseActivity
 			intent.setData(null);
 			if (uri != null) {
 				fileToOpen = uri.getPath();
-//				if (fileToOpen.startsWith("file://"))
-//					fileToOpen = fileToOpen.substring("file://".length());
 			}
 		}
 		if (fileToOpen == null && intent.getExtras() != null) {
@@ -653,8 +649,6 @@ public class CoolReader extends BaseActivity
 					task.run();
 					setCurrentFrame(mBrowserFrame);
 
-//					if (getIntent() == null)
-//						mBrowser.showDirectory(Services.getScanner().getDownloadDirectory(), null);
 				}
 			}
 		});

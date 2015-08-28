@@ -65,26 +65,21 @@ public class CRDonationService {
 		mServiceConn = new ServiceConnection() {
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
-				log.d("CRDonationService.onServiceDisconnected()");
 			    mService = null;
 			    mBillingSupported = false;
 			}
 			@Override
 			public void onServiceConnected(ComponentName name,
 					IBinder service) {
-				log.d("CRDonationService.onServiceConnected()");
 			    mService = IInAppBillingService.Stub.asInterface(service);
 			    try {
 					mBillingSupported = mService.isBillingSupported(API_VERSION, PACKAGE_NAME, "inapp") == RESULT_OK;
 					mProducts = getProducts(SKUS);
 					mPurchases = getPurchases();
-					log.d("Product list: " + mProducts);
-					log.d("Purchases list: " + mPurchases);
 				} catch (RemoteException e) {
 					log.e("RemoteException while trying to check if billing is supported");
 					mBillingSupported = false;
 				}
-			    log.d("CRDonationService.onServiceConnected()  billingSupported=" + mBillingSupported);
 			}
 		};
 	}
@@ -122,7 +117,7 @@ public class CRDonationService {
 				for (String thisResponse : responseList) {
 					JSONObject object;
 					try {
-						object = new JSONObject(thisResponse);
+                                            object = new JSONObject(thisResponse);
 					    PurchaseInfo p = new PurchaseInfo();
 					    p.productId = object.getString("productId");
 					    p.price = object.getString("price");
@@ -195,9 +190,7 @@ public class CRDonationService {
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 1001) {
-			//int responseCode = data.getIntExtra("RESPONSE_CODE", 0);
 			String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
-			//String dataSignature = data.getStringExtra("INAPP_DATA_SIGNATURE");
 
 			if (resultCode == RESULT_OK) {
 				try {
@@ -224,9 +217,12 @@ public class CRDonationService {
 			mCurrentListener = null;
 		}
 	}	
-
+        public void onDestroy() {
+            unbind();
+        }
+        
+        
 	public void bind() {
-		log.d("CRDonationService.bind()");
 		Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 		serviceIntent.setPackage("com.android.vending");
 		mActivity.bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
@@ -235,10 +231,9 @@ public class CRDonationService {
 
 	
 	public void unbind() {
-		log.d("CRDonationService.unbind()");
 		if (mService != null) {
 			mActivity.unbindService(mServiceConn);
-	    }	
+                }	
 		mBound = false;
 	}
 	

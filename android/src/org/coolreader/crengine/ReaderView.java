@@ -2196,7 +2196,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
             break;
 		case DCMD_MOVE_BY_CHAPTER:
 			doEngineCommand(cmd, param, onFinishHandler);
-            drawPage();
+                        drawPage();
 			break;
 		case DCMD_PAGEDOWN:
 			if ( param==1 && !DeviceInfo.EINK_SCREEN)
